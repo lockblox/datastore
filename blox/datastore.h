@@ -6,7 +6,7 @@
 namespace blox {
 
 class datastore {
-public:
+ public:
   virtual ~datastore() = default;
 
   using iterator = blox::iterator;
@@ -28,5 +28,4 @@ public:
   /** Find a value matching the given key */
   virtual iterator find(key_type key) const = 0;
 };
-
-} // namespace blox
+}  // namespace blox

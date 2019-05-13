@@ -4,7 +4,6 @@
 
 namespace blox {
 class map : public datastore {
-
  public:
   std::pair<iterator, bool> insert(value_type value) override;
   size_type erase(key_type key) override;
@@ -29,4 +28,4 @@ class map : public datastore {
 
   std::map<std::string, std::string, std::less<>> data_;
 };
-}
+}  // namespace blox

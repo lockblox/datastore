@@ -15,17 +15,15 @@ iterator& iterator::operator++() {
 }
 
 bool iterator::operator==(const iterator& rhs) const {
-  return cursor_ == rhs.cursor_ || (cursor_ != nullptr && rhs.cursor_ !=
-                                                          nullptr
-                                    && cursor_->equal(*rhs.cursor_));
+  return cursor_ == rhs.cursor_ ||
+         (cursor_ != nullptr && rhs.cursor_ != nullptr &&
+          cursor_->equal(*rhs.cursor_));
 }
 
-bool iterator::operator!=(const iterator& rhs) const {
-  return !(*this == rhs);
-}
+bool iterator::operator!=(const iterator& rhs) const { return !(*this == rhs); }
 
 iterator& iterator::operator--() {
   cursor_->decrement();
   return *this;
 }
-} // namespace blox
+}  // namespace blox
