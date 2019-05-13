@@ -6,6 +6,9 @@ namespace blox {
 /** Interface to iterate through values of a database */
 class cursor {
  public:
+  /** Destroy a cursor */
+  virtual ~cursor() {}
+
   /** Get the current key */
   virtual std::string_view key() const = 0;
 
@@ -21,4 +24,5 @@ class cursor {
   /** Move the cursor backwards */
   virtual void decrement() = 0;
 };
-} // namespace blox
+
+}  // namespace blox
