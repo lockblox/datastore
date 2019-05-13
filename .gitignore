@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# IDE files
+build
+cmake-build-debug
+.idea
+.vscode/ipch
+.vs
+compile_commands.json
