@@ -10,6 +10,7 @@ class map : public datastore {
   iterator find(key_type key) const override;
   iterator begin() const override;
   iterator end() const override;
+  iterator insert(const_iterator iterator, const value_type& value) override;
 
  private:
   class cursor : public blox::cursor {
@@ -21,6 +22,9 @@ class map : public datastore {
     bool equal(const blox::cursor& rhs) const override;
     void increment() override;
     void decrement() override;
+    std::unique_ptr<blox::cursor> clone() const override;
+
+    friend class map;
 
    private:
     iterator it_;

@@ -22,6 +22,9 @@ class datastore {
   /** Insert a value */
   virtual std::pair<iterator, bool> insert(value_type value) = 0;
 
+  /** Insert an element at the given position */
+  virtual iterator insert(const_iterator, const value_type& value) = 0;
+
   /** Erase the value matching the given key */
   virtual size_type erase(key_type key) = 0;
 

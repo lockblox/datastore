@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <string_view>
 
 namespace blox {
@@ -7,7 +8,9 @@ namespace blox {
 class cursor {
  public:
   /** Destroy a cursor */
-  virtual ~cursor() {}
+  virtual ~cursor() = default;
+
+  virtual std::unique_ptr<cursor> clone() const = 0;
 
   /** Get the current key */
   virtual std::string_view key() const = 0;
