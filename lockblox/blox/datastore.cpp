@@ -4,9 +4,6 @@ namespace lockblox::blox {
 
 datastore::iterator::iterator(std::unique_ptr<datastore::cursor> cursor)
     : cursor_(std::move(cursor)) {
-  if (cursor_ != nullptr) {
-    value_ = std::pair(cursor_->key(), cursor_->value());
-  }
 }
 
 const datastore::iterator::value_type* datastore::iterator::operator->() const {
