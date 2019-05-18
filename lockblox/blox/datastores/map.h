@@ -1,11 +1,13 @@
 #pragma once
-#include <blox/datastore.h>
+#include <lockblox/blox/datastore.h>
 #include <map>
 
-namespace blox {
+namespace lockblox::blox::datastores {
+
 class map : public datastore {
  public:
-  std::pair<iterator, bool> insert(value_type value) override;
+  using iterator = datastore::iterator;
+  std::pair<datastore::iterator, bool> insert(value_type value) override;
   size_type erase(key_type key) override;
   iterator find(key_type key) const override;
   iterator begin() const override;
@@ -13,16 +15,16 @@ class map : public datastore {
   iterator insert(const_iterator iterator, const value_type& value) override;
 
  private:
-  class cursor : public blox::cursor {
+  class cursor : public datastore::cursor {
    public:
     using iterator = std::map<std::string, std::string>::const_iterator;
     explicit cursor(iterator it);
     std::string_view key() const override;
     std::string_view value() const override;
-    bool equal(const blox::cursor& rhs) const override;
+    bool equal(const datastore::cursor& rhs) const override;
     void increment() override;
     void decrement() override;
-    std::unique_ptr<blox::cursor> clone() const override;
+    std::unique_ptr<datastore::cursor> clone() const override;
 
     friend class map;
 
@@ -32,4 +34,4 @@ class map : public datastore {
 
   std::map<std::string, std::string, std::less<>> data_;
 };
-}  // namespace blox
+}  // namespace lockblox::blox::datastores

@@ -1,5 +1,5 @@
-#include <blox/map.h>
 #include <gtest/gtest.h>
+#include <lockblox/blox/datastores/map.h>
 #include <sstream>
 
 namespace test {
@@ -13,7 +13,7 @@ bool equal(const std::pair<std::string, std::string>& lhs,
 }
 
 TEST(blox, map) {
-  auto map = blox::map();
+  auto map = lockblox::blox::datastores::map();
   EXPECT_EQ(map.end(), map.find("a"));
   map.insert(std::pair("a", "1"));
   EXPECT_NE(map.end(), map.find("a"));
