@@ -13,17 +13,21 @@ add_library(libblox
         lockblox/blox/datastore.cpp
         lockblox/blox/datastore.h
         lockblox/blox/datastores/map.cpp
-        lockblox/blox/datastores/map.h)
+        lockblox/blox/datastores/map.h
+        lockblox/blox/datastores/lmdb.cpp
+        lockblox/blox/datastores/lmdb.h)
 
 set_target_properties(libblox PROPERTIES OUTPUT_NAME blox)
 target_include_directories(libblox PUBLIC 
                            $<BUILD_INTERFACE:${blox_SOURCE_DIR}>
+                           ${lmdb_INCLUDE_DIRS}
                            $<INSTALL_INTERFACE:include>)
-target_link_libraries(libblox PUBLIC lmdb)
-if (MSVC) 
+target_link_libraries(libblox PRIVATE lmdb)
+if (MSVC)
     target_compile_options(libblox PRIVATE /W4 /WX /MP)
 else() 
     target_compile_options(libblox PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_link_libraries(libblox PUBLIC stdc++fs)
 endif()
 
 if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
@@ -36,7 +40,7 @@ if(BUILD_TESTING)
                    test/blox_test.cpp 
                    test/main.cpp)
     target_link_libraries(blox_test PRIVATE libblox GTest::GTest GTest::Main)
-    gtest_discover_tests(blox_test)
+    #gtest_discover_tests(blox_test)
     if (MSVC) 
         target_compile_options(blox_test PRIVATE /W4 /WX /MP)
     else() 

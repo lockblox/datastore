@@ -3,8 +3,7 @@
 namespace lockblox::blox {
 
 datastore::iterator::iterator(std::unique_ptr<datastore::cursor> cursor)
-    : cursor_(std::move(cursor)) {
-}
+    : cursor_(std::move(cursor)) {}
 
 const datastore::iterator::value_type* datastore::iterator::operator->() const {
   return &(value());
@@ -15,7 +14,7 @@ const datastore::iterator::value_type& datastore::iterator::operator*() const {
 }
 
 datastore::iterator::iterator(const iterator& rhs)
-    : iterator(rhs.cursor_->clone()) {}
+    : iterator(rhs.cursor_ ? rhs.cursor_->clone() : nullptr) {}
 
 datastore::iterator& datastore::iterator::operator=(
     const datastore::iterator& rhs) {
@@ -29,14 +28,18 @@ datastore::iterator& datastore::iterator::operator=(
 }
 
 datastore::iterator& datastore::iterator::operator++() {
-  cursor_->increment();
-  value_.reset();
+  if (cursor_ != nullptr) {
+    cursor_->increment();
+    value_.reset();
+  }
   return *this;
 }
 
 datastore::iterator& datastore::iterator::operator--() {
-  cursor_->decrement();
-  value_.reset();
+  if (cursor_ != nullptr) {
+    cursor_->decrement();
+    value_.reset();
+  }
   return *this;
 }
 
@@ -58,9 +61,38 @@ const datastore::cursor* datastore::iterator::get() const {
 
 const datastore::iterator::value_type& datastore::iterator::value() const {
   if (!value_) {
-    value_ = std::pair(cursor_->key(), cursor_->value());
+    if (cursor_ != nullptr) {
+      value_ = std::pair(cursor_->key(), cursor_->value());
+    } else {
+      value_ = datastore::iterator::value_type{};
+    }
   }
   return *value_;
+}
+
+datastore::size_type datastore::erase(datastore::key_type key) {
+  auto result = 0;
+  auto it = find(key);
+  if (it != end()) {
+    erase(it);
+    result = 1;
+  }
+  return result;
+}
+
+std::pair<datastore::iterator, bool> datastore::insert(
+    datastore::value_type value) {
+  auto result = std::pair(find(value.first), false);
+  if (result.first == end()) {
+    result = std::pair(insert(result.first, value), true);
+  }
+  return result;
+}
+
+void datastore::clear() {
+  for (const auto& i : *this) {
+    erase(i.first);
+  }
 }
 
 }  // namespace lockblox::blox

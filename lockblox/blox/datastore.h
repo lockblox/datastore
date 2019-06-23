@@ -12,6 +12,7 @@ class datastore {
   class iterator;
   using const_iterator = const iterator;
   using key_type = std::string_view;
+  using mapped_type = std::string_view;
   using value_type = std::pair<std::string_view, std::string_view>;
   using size_type = std::size_t;
 
@@ -22,16 +23,22 @@ class datastore {
   virtual iterator end() const = 0;
 
   /** Insert a value */
-  virtual std::pair<iterator, bool> insert(value_type value) = 0;
+  std::pair<iterator, bool> insert(value_type value);
 
   /** Insert an element at the given position */
   virtual iterator insert(const_iterator, const value_type& value) = 0;
 
   /** Erase the value matching the given key */
-  virtual size_type erase(key_type key) = 0;
+  size_type erase(key_type key);
+
+  /** Erase the element at pos */
+  virtual iterator erase(iterator pos) = 0;
 
   /** Find a value matching the given key */
   virtual iterator find(key_type key) const = 0;
+
+  /** Removes all elements from the datastore */
+  void clear();
 };
 
 /** Interface to iterate through values of a database */
@@ -61,10 +68,10 @@ class datastore::cursor {
 class datastore::iterator {
  public:
   using iterator_category = std::bidirectional_iterator_tag;
-  using value_type = std::pair<std::string_view, std::string_view>;
+  using value_type = datastore::value_type;
   using difference_type = std::ptrdiff_t;
-  using pointer = std::string_view*;
-  using reference = std::string_view&;
+  using pointer = value_type*;
+  using reference = value_type&;
 
   /** Create a sentinel iterator */
   iterator() = default;
@@ -115,5 +122,4 @@ class datastore::iterator {
 
   const value_type& value() const;
 };
-
 }  // namespace lockblox::blox

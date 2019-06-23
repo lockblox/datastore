@@ -1,14 +1,14 @@
 #pragma once
 #include <lockblox/blox/datastore.h>
 #include <map>
+#include "lmdb.h"
 
 namespace lockblox::blox::datastores {
 
-class map : public datastore {
+class map final : public datastore {
  public:
   using iterator = datastore::iterator;
-  std::pair<datastore::iterator, bool> insert(value_type value) override;
-  size_type erase(key_type key) override;
+  iterator erase(iterator pos) override;
   iterator find(key_type key) const override;
   iterator begin() const override;
   iterator end() const override;

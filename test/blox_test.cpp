@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
+#include <lockblox/blox/datastores/lmdb.h>
 #include <lockblox/blox/datastores/map.h>
+#include <cstdio>
 #include <sstream>
 
 namespace test {
@@ -12,20 +14,51 @@ bool equal(const std::pair<std::string, std::string>& lhs,
                     rhs.second.end());
 }
 
-TEST(blox, map) {
-  auto map = lockblox::blox::datastores::map();
-  EXPECT_EQ(map.end(), map.find("a"));
-  map.insert(std::pair("a", "1"));
-  EXPECT_NE(map.end(), map.find("a"));
-  map.erase("a");
-  EXPECT_EQ(map.end(), map.find("a"));
+using lmdb_configuration = lockblox::blox::datastores::lmdb::configuration;
+
+class datastore : public testing::TestWithParam<
+                      std::shared_ptr<lockblox::blox::datastore>> {};
+
+TEST_P(datastore, clear) {
+  auto datastore = GetParam();
+  datastore->clear();
+}
+
+TEST_P(datastore, find) {
+  auto datastore = GetParam();
+  EXPECT_EQ(datastore->end(), datastore->find("a"));
+}
+
+TEST_P(datastore, insert) {
+  auto datastore = GetParam();
+  datastore->insert(std::pair("a", "1"));
+  EXPECT_NE(datastore->end(), datastore->find("a"));
+}
+
+TEST_P(datastore, erase) {
+  auto datastore = GetParam();
+  datastore->erase("a");
+  EXPECT_EQ(datastore->end(), datastore->find("a"));
+}
+
+TEST_P(datastore, copy) {
+  auto datastore = GetParam();
   auto input = std::vector<std::pair<std::string, std::string>>{
       {"a", "1"}, {"b", "2"}, {"c", "3"}};
-  std::copy(input.begin(), input.end(), std::inserter(map, map.end()));
-  auto it = map.find("b");
-  ASSERT_NE(map.end(), it);
+  std::copy(input.begin(), input.end(),
+            std::inserter(*datastore, datastore->end()));
+  auto it = datastore->find("b");
+  ASSERT_NE(datastore->end(), it);
   EXPECT_EQ("2", it->second);
-  EXPECT_TRUE(
-      std::equal(input.begin(), input.end(), map.begin(), map.end(), equal));
+  EXPECT_TRUE(std::equal(input.begin(), input.end(), datastore->begin(),
+                         datastore->end(), equal));
 }
+
+INSTANTIATE_TEST_CASE_P(
+    blox, datastore,
+    ::testing::Values(std::make_shared<lockblox::blox::datastores::map>(),
+                      std::make_shared<lockblox::blox::datastores::lmdb>(
+                          lockblox::blox::datastores::lmdb::configuration(
+                              std::filesystem::temp_directory_path()))), );
+
 }  // namespace test

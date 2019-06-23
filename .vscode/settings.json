@@ -62,6 +62,7 @@
         "cinttypes": "cpp",
         "optional": "cpp",
         "__config": "cpp",
-        "__nullptr": "cpp"
+        "__nullptr": "cpp",
+        "filesystem": "cpp"
     }
 }

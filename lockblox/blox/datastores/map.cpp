@@ -2,17 +2,13 @@
 
 namespace lockblox::blox::datastores {
 
-std::pair<datastore::iterator, bool> map::insert(datastore::value_type value) {
-  auto pair = std::pair(std::string(value.first), std::string(value.second));
-  auto result = data_.insert(pair);
-  return std::pair(iterator(std::make_unique<cursor>(result.first)),
-                   result.second);
-}
-
-datastore::size_type map::erase(datastore::key_type key) {
-  auto it = data_.find(key);
-  auto result = it == data_.end() ? 0 : 1u;
-  data_.erase(it);
+datastore::iterator map::erase(datastore::iterator pos) {
+  auto cursor = dynamic_cast<const map::cursor*>(pos.get());
+  auto result = datastore::iterator();
+  if (cursor) {
+    auto it = data_.erase(cursor->it_);
+    result = datastore::iterator(std::make_unique<map::cursor>(it));
+  }
   return result;
 }
 
