@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <lockblox/blox/datastores/lmdb.h>
-#include <lockblox/blox/datastores/map.h>
+#include <blox/datastores/lmdb.h>
+#include <blox/datastores/map.h>
 #include <cstdio>
 #include <sstream>
 
@@ -14,10 +14,10 @@ bool equal(const std::pair<std::string, std::string>& lhs,
                     rhs.second.end());
 }
 
-using lmdb_configuration = lockblox::blox::datastores::lmdb::configuration;
+using lmdb_configuration = blox::datastores::lmdb::configuration;
 
 class datastore : public testing::TestWithParam<
-                      std::shared_ptr<lockblox::blox::datastore>> {};
+                      std::shared_ptr<blox::datastore>> {};
 
 TEST_P(datastore, clear) {
   auto datastore = GetParam();
@@ -56,9 +56,9 @@ TEST_P(datastore, copy) {
 
 INSTANTIATE_TEST_CASE_P(
     blox, datastore,
-    ::testing::Values(std::make_shared<lockblox::blox::datastores::map>(),
-                      std::make_shared<lockblox::blox::datastores::lmdb>(
-                          lockblox::blox::datastores::lmdb::configuration(
+    ::testing::Values(std::make_shared<blox::datastores::map>(),
+                      std::make_shared<blox::datastores::lmdb>(
+                          blox::datastores::lmdb::configuration(
                               std::filesystem::temp_directory_path()))), );
 
 }  // namespace test

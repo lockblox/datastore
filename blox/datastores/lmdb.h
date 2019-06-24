@@ -1,9 +1,9 @@
 #pragma once
 #include <lmdb.h>
-#include <lockblox/blox/datastore.h>
+#include <blox/datastore.h>
 #include <filesystem>
 
-namespace lockblox::blox::datastores {
+namespace blox::datastores {
 
 class lmdb final : public datastore {
  public:
@@ -164,4 +164,4 @@ class lmdb final : public datastore {
   database db_;
 };
 
-}  // namespace lockblox::blox::datastores
+}  // namespace blox::datastores

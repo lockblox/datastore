@@ -1,6 +1,6 @@
-#include <lockblox/blox/datastores/map.h>
+#include <blox/datastores/map.h>
 
-namespace lockblox::blox::datastores {
+namespace blox::datastores {
 
 datastore::iterator map::erase(datastore::iterator pos) {
   auto cursor = dynamic_cast<const map::cursor*>(pos.get());
@@ -55,4 +55,4 @@ void map::cursor::decrement() { --it_; }
 std::unique_ptr<datastore::cursor> map::cursor::clone() const {
   return std::make_unique<map::cursor>(it_);
 }
-}  // namespace lockblox::blox::datastores
+}  // namespace blox::datastores

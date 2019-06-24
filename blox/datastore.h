@@ -4,7 +4,7 @@
 #include <string_view>
 #include <utility>
 
-namespace lockblox::blox {
+namespace blox {
 
 class datastore {
  public:
@@ -122,4 +122,4 @@ class datastore::iterator {
 
   const value_type& value() const;
 };
-}  // namespace lockblox::blox
+}  // namespace blox

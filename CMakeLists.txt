@@ -10,12 +10,12 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(lmdb CONFIG REQUIRED)
 
 add_library(libblox
-        lockblox/blox/datastore.cpp
-        lockblox/blox/datastore.h
-        lockblox/blox/datastores/map.cpp
-        lockblox/blox/datastores/map.h
-        lockblox/blox/datastores/lmdb.cpp
-        lockblox/blox/datastores/lmdb.h)
+        blox/datastore.cpp
+        blox/datastore.h
+        blox/datastores/map.cpp
+        blox/datastores/map.h
+        blox/datastores/lmdb.cpp
+        blox/datastores/lmdb.h)
 
 set_target_properties(libblox PROPERTIES OUTPUT_NAME blox)
 target_include_directories(libblox PUBLIC 

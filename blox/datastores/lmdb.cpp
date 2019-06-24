@@ -1,10 +1,10 @@
-#include <lockblox/blox/datastores/lmdb.h>
+#include <blox/datastores/lmdb.h>
 #include <cassert>
 #include <iostream>
 #include <map>
 #include <utility>
 
-namespace lockblox::blox {
+namespace blox {
 
 static void call(int status) {
   std::string message = mdb_strerror(status);
@@ -323,4 +323,4 @@ void datastores::lmdb::cursor::first() {
   call(mdb_cursor_get(cursor_, buffer(), buffer(), MDB_FIRST));
 }
 
-}  // namespace lockblox::blox
+}  // namespace blox

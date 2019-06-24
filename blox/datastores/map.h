@@ -1,9 +1,9 @@
 #pragma once
-#include <lockblox/blox/datastore.h>
+#include <blox/datastore.h>
 #include <map>
 #include "lmdb.h"
 
-namespace lockblox::blox::datastores {
+namespace blox::datastores {
 
 class map final : public datastore {
  public:
@@ -34,4 +34,4 @@ class map final : public datastore {
 
   std::map<std::string, std::string, std::less<>> data_;
 };
-}  // namespace lockblox::blox::datastores
+}  // namespace blox::datastores

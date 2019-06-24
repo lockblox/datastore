@@ -1,6 +1,6 @@
-#include <lockblox/blox/datastore.h>
+#include <blox/datastore.h>
 
-namespace lockblox::blox {
+namespace blox {
 
 datastore::iterator::iterator(std::unique_ptr<datastore::cursor> cursor)
     : cursor_(std::move(cursor)) {}
@@ -95,4 +95,4 @@ void datastore::clear() {
   }
 }
 
-}  // namespace lockblox::blox
+}  // namespace blox
