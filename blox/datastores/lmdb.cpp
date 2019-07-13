@@ -101,7 +101,7 @@ datastore::iterator datastores::lmdb::begin() const {
     result->first();
     result->key();
     return datastore::iterator(std::move(result));
-  } catch (std::out_of_range& e) {
+  } catch (std::out_of_range&) {
     return end();
   }
 }
@@ -132,7 +132,7 @@ datastore::iterator datastores::lmdb::find(datastore::key_type key) const {
     auto result = std::make_unique<cursor>(db_, std::move(txn));
     result->seek(key);
     return datastore::iterator(std::move(result));
-  } catch (std::out_of_range& e) {
+  } catch (std::out_of_range&) {
     return end();
   }
 }
@@ -143,7 +143,7 @@ datastore::iterator datastores::lmdb::erase(datastore::iterator pos) {
   auto key = pos->first;
   try {
     ++pos;
-  } catch (std::out_of_range& e) {
+  } catch (std::out_of_range&) {
     pos = end();
   }
   cur.seek(key);
@@ -291,7 +291,7 @@ bool datastores::lmdb::cursor::equal(const datastore::cursor& rhs) const {
     auto cursor = dynamic_cast<const datastores::lmdb::cursor&>(rhs);
     return database_ == cursor.database_ &&
            transaction_ == cursor.transaction_ && cursor_ == cursor.cursor_;
-  } catch (std::bad_cast& e) {
+  } catch (std::bad_cast&) {
     return false;
   }
 }
@@ -300,7 +300,7 @@ void datastores::lmdb::cursor::increment() {
   buffer key, value;
   try {
     call(mdb_cursor_get(cursor_, key, value, MDB_NEXT));
-  } catch (std::out_of_range& e) {
+  } catch (std::out_of_range&) {
     *this = cursor();
   }
 }

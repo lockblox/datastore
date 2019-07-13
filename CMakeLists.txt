@@ -8,6 +8,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(lmdb CONFIG REQUIRED)
+find_package(multihash CONFIG REQUIRED)
+find_package(cryptopp CONFIG REQUIRED)
 
 add_library(libblox
         blox/datastore.cpp
@@ -15,14 +17,16 @@ add_library(libblox
         blox/datastores/map.cpp
         blox/datastores/map.h
         blox/datastores/lmdb.cpp
-        blox/datastores/lmdb.h)
+        blox/datastores/lmdb.h
+        blox/block.cpp
+        blox/block.h)
 
 set_target_properties(libblox PROPERTIES OUTPUT_NAME blox)
 target_include_directories(libblox PUBLIC 
                            $<BUILD_INTERFACE:${blox_SOURCE_DIR}>
                            ${lmdb_INCLUDE_DIRS}
                            $<INSTALL_INTERFACE:include>)
-target_link_libraries(libblox PRIVATE lmdb)
+target_link_libraries(libblox PRIVATE lmdb libmultihash cryptopp-static)
 if (MSVC)
     target_compile_options(libblox PRIVATE /W4 /WX /MP)
 else() 
@@ -36,9 +40,9 @@ endif()
 
 if(BUILD_TESTING)
     find_package(GTest MODULE REQUIRED)
-    add_executable(blox_test 
-                   test/blox_test.cpp 
-                   test/main.cpp)
+    add_executable(blox_test
+            test/datastore_test.cpp
+                   test/main.cpp test/block_test.cpp)
     target_link_libraries(blox_test PRIVATE libblox GTest::GTest GTest::Main)
     #gtest_discover_tests(blox_test)
     if (MSVC) 
