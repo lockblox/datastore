@@ -11,14 +11,14 @@ TEST(blocks, equal) {
     EXPECT_EQ(a,b);
     b = blox::block(a.key()); // no data in block b
     EXPECT_EQ(a,b);
-
     auto a_copy = a;
     EXPECT_EQ(a_copy.key(), a.key());
     EXPECT_EQ(a_copy.data(), a.data());
     EXPECT_EQ(a, b);
     a = a;
     EXPECT_EQ(a,a);
-
+    blox::block c{b};
+    EXPECT_EQ(b, c);
     auto a_move = std::move(a);
     EXPECT_EQ(a_move, a_copy);
 }
