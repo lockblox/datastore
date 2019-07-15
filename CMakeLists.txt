@@ -19,7 +19,9 @@ add_library(libblox
         blox/datastores/lmdb.cpp
         blox/datastores/lmdb.h
         blox/block.cpp
-        blox/block.h)
+        blox/block.h
+        blox/blockstore.cpp
+        blox/blockstore.h)
 
 set_target_properties(libblox PROPERTIES OUTPUT_NAME blox)
 target_include_directories(libblox PUBLIC 

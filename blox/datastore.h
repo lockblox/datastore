@@ -11,6 +11,7 @@ class datastore {
   class cursor;
   class iterator;
   using const_iterator = const iterator;
+  using difference_type = std::ptrdiff_t;
   using key_type = std::string_view;
   using mapped_type = std::string_view;
   using value_type = std::pair<std::string_view, std::string_view>;
