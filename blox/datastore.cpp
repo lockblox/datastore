@@ -5,12 +5,27 @@ namespace blox {
 datastore::iterator::iterator(std::unique_ptr<datastore::cursor> cursor)
     : cursor_(std::move(cursor)) {}
 
-const datastore::iterator::value_type* datastore::iterator::operator->() const {
-  return &(value());
+datastore::const_iterator datastore::begin() const {
+  return iterator(const_cast<datastore*>(this)->first());
 }
 
-const datastore::iterator::value_type& datastore::iterator::operator*() const {
-  return value();
+datastore::const_iterator datastore::cbegin() const { return begin(); }
+
+datastore::const_iterator datastore::end() const {
+  return iterator(const_cast<datastore*>(this)->last());
+}
+
+datastore::const_iterator datastore::cend() const { return end(); }
+
+datastore::iterator::const_reference datastore::iterator::dereference() const {
+  if (!value_) {
+    if (cursor_ != nullptr) {
+      value_ = std::pair(cursor_->key(), cursor_->value());
+    } else {
+      value_ = datastore::iterator::value_type{};
+    }
+  }
+  return *value_;
 }
 
 datastore::iterator::iterator(const iterator& rhs)
@@ -24,22 +39,6 @@ datastore::iterator& datastore::iterator::operator=(
     cursor_ = nullptr;
   }
   value_.reset();
-  return *this;
-}
-
-datastore::iterator& datastore::iterator::operator++() {
-  if (cursor_ != nullptr) {
-    cursor_->increment();
-    value_.reset();
-  }
-  return *this;
-}
-
-datastore::iterator& datastore::iterator::operator--() {
-  if (cursor_ != nullptr) {
-    cursor_->decrement();
-    value_.reset();
-  }
   return *this;
 }
 
@@ -59,15 +58,14 @@ const datastore::cursor* datastore::iterator::get() const {
   return cursor_.get();
 }
 
-const datastore::iterator::value_type& datastore::iterator::value() const {
-  if (!value_) {
-    if (cursor_ != nullptr) {
-      value_ = std::pair(cursor_->key(), cursor_->value());
-    } else {
-      value_ = datastore::iterator::value_type{};
-    }
-  }
-  return *value_;
+void datastore::iterator::increment() {
+  cursor_->increment();
+  value_.reset();
+}
+
+void datastore::iterator::decrement() {
+  cursor_->decrement();
+  value_.reset();
 }
 
 datastore::size_type datastore::erase(datastore::key_type key) {
@@ -90,7 +88,7 @@ std::pair<datastore::iterator, bool> datastore::insert(
 }
 
 void datastore::clear() {
-  for (const auto& i : *this) {
+  for (auto&& i : *this) {
     erase(i.first);
   }
 }

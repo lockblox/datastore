@@ -16,12 +16,12 @@ datastore::iterator map::find(datastore::key_type key) const {
   return datastore::iterator(std::make_unique<cursor>(data_.find(key)));
 }
 
-datastore::iterator map::begin() const {
-  return datastore::iterator(std::make_unique<cursor>(data_.begin()));
+std::unique_ptr<datastore::cursor> map::first() {
+  return std::make_unique<cursor>(data_.begin());
 }
 
-datastore::iterator map::end() const {
-  return datastore::iterator(std::make_unique<cursor>(data_.end()));
+std::unique_ptr<datastore::cursor> map::last() {
+  return std::make_unique<cursor>(data_.end());
 }
 
 datastore::iterator map::insert(datastore::const_iterator iterator,

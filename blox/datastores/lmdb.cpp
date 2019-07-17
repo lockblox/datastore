@@ -94,21 +94,20 @@ mdb_mode_t datastores::lmdb::configuration::mode() const { return mode_; }
 datastores::lmdb::lmdb(const datastores::lmdb::configuration& config)
     : env_(config.path()), db_(env_) {}
 
-datastore::iterator datastores::lmdb::begin() const {
+std::unique_ptr<datastore::cursor> datastores::lmdb::first() {
   auto txn = std::make_shared<transaction>(env_);
   auto result = std::make_unique<cursor>(db_, txn);
   try {
     result->first();
     result->key();
-    return datastore::iterator(std::move(result));
+    return result;
   } catch (std::out_of_range&) {
-    return end();
+    return last();
   }
 }
 
-datastore::iterator datastores::lmdb::end() const {
-  auto cursor = std::make_unique<datastores::lmdb::cursor>();
-  return iterator(std::move(cursor));
+std::unique_ptr<datastore::cursor> datastores::lmdb::last() {
+  return std::make_unique<datastores::lmdb::cursor>();
 }
 
 datastore::iterator datastores::lmdb::insert(

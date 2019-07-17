@@ -23,8 +23,8 @@ class lmdb final : public datastore {
 
   explicit lmdb(const configuration& config);
   ~lmdb() final = default;
-  iterator begin() const override;
-  iterator end() const override;
+  std::unique_ptr<cursor> first() override;
+  std::unique_ptr<cursor> last() override;
   iterator insert(const_iterator iterator, const value_type& value) override;
   iterator find(key_type key) const override;
   iterator erase(iterator pos) override;

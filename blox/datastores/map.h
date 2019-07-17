@@ -10,8 +10,8 @@ class map final : public datastore {
   using iterator = datastore::iterator;
   iterator erase(iterator pos) override;
   iterator find(key_type key) const override;
-  iterator begin() const override;
-  iterator end() const override;
+  std::unique_ptr<datastore::cursor> first() override;
+  std::unique_ptr<datastore::cursor> last() override;
   iterator insert(const_iterator iterator, const value_type& value) override;
 
  private:

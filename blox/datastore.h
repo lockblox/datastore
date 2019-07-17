@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/iterator/iterator_facade.hpp>
 #include <memory>
 #include <optional>
 #include <string_view>
@@ -15,13 +16,19 @@ class datastore {
   using key_type = std::string_view;
   using mapped_type = std::string_view;
   using value_type = std::pair<std::string_view, std::string_view>;
+  using reference = const value_type&;
   using size_type = std::size_t;
 
   virtual ~datastore() = default;
 
-  virtual iterator begin() const = 0;
+  virtual std::unique_ptr<cursor> first() = 0;
+  virtual std::unique_ptr<cursor> last() = 0;
 
-  virtual iterator end() const = 0;
+  const_iterator begin() const;
+  const_iterator cbegin() const;
+
+  const_iterator end() const;
+  const_iterator cend() const;
 
   /** Insert a value */
   std::pair<iterator, bool> insert(value_type value);
@@ -64,15 +71,14 @@ class datastore::cursor {
 
   /** Move the cursor backwards */
   virtual void decrement() = 0;
-};
+};  // namespace blox
 
-class datastore::iterator {
+class datastore::iterator
+    : public boost::iterator_facade<datastore::iterator,
+                                    const datastore::value_type,
+                                    boost::bidirectional_traversal_tag> {
  public:
-  using iterator_category = std::bidirectional_iterator_tag;
-  using value_type = datastore::value_type;
-  using difference_type = std::ptrdiff_t;
-  using pointer = value_type*;
-  using reference = value_type&;
+  using const_reference = std::add_const<reference>::type;
 
   /** Create a sentinel iterator */
   iterator() = default;
@@ -92,19 +98,17 @@ class datastore::iterator {
   /** Assign from rvalue reference */
   iterator& operator=(iterator&&) = default;
 
+  /** Destroys the iterator */
   virtual ~iterator() = default;
 
-  /** Access the current value */
-  const value_type* operator->() const;
+  /** Moves the iterator forward */
+  void increment();
 
-  /** Get the current value */
-  const value_type& operator*() const;
+  /** Moves the iterator backward */
+  void decrement();
 
-  /** Pre-increment */
-  iterator& operator++();
-
-  /** Pre-decrement */
-  iterator& operator--();
+  /** Returns a reference to the value */
+  const_reference dereference() const;
 
   /** Determine whether two iterators are equal */
   bool operator==(const iterator& rhs) const;
@@ -120,7 +124,6 @@ class datastore::iterator {
   std::unique_ptr<cursor> cursor_ = nullptr; /** Pointer to underlying cursor */
  private:
   mutable std::optional<value_type> value_;
-
-  const value_type& value() const;
 };
+
 }  // namespace blox
