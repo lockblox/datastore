@@ -94,7 +94,7 @@ mdb_mode_t datastores::lmdb::configuration::mode() const { return mode_; }
 datastores::lmdb::lmdb(const datastores::lmdb::configuration& config)
     : env_(config.path()), db_(env_) {}
 
-std::unique_ptr<datastore::cursor> datastores::lmdb::first() {
+std::unique_ptr<datastore::cursor> datastores::lmdb::first() const {
   auto txn = std::make_shared<transaction>(env_);
   auto result = std::make_unique<cursor>(db_, txn);
   try {
@@ -106,13 +106,14 @@ std::unique_ptr<datastore::cursor> datastores::lmdb::first() {
   }
 }
 
-std::unique_ptr<datastore::cursor> datastores::lmdb::last() {
+std::unique_ptr<datastore::cursor> datastores::lmdb::last() const {
   return std::make_unique<datastores::lmdb::cursor>();
 }
 
-datastore::iterator datastores::lmdb::insert(
-    datastore::iterator iterator, const datastore::value_type& value) {
-  (void)(iterator);
+std::unique_ptr<datastore::cursor> datastores::lmdb::insert(
+    std::unique_ptr<datastore::cursor>& pos,
+    const datastore::value_type& value) {
+  (void)(pos);
   auto txn = std::make_shared<transaction>(env_, false);
   {
     auto cursor = datastores::lmdb::cursor{db_, txn};
@@ -122,33 +123,35 @@ datastore::iterator datastores::lmdb::insert(
   txn = std::make_shared<transaction>(env_);
   auto result = std::make_unique<datastores::lmdb::cursor>(db_, txn);
   result->seek(value.first);
-  return datastore::iterator(std::move(result));
+  return result;
 }
 
-datastore::iterator datastores::lmdb::find(datastore::key_type key) const {
+std::unique_ptr<datastore::cursor> datastores::lmdb::lookup(
+    datastore::key_type key) const {
   try {
     auto txn = std::make_shared<transaction>(db_.environment());
     auto result = std::make_unique<cursor>(db_, std::move(txn));
     result->seek(key);
-    return datastore::iterator(std::move(result));
+    return result;
   } catch (std::out_of_range&) {
-    return end();
+    return last();
   }
 }
 
-datastore::iterator datastores::lmdb::erase(datastore::iterator pos) {
+std::unique_ptr<datastore::cursor> datastores::lmdb::erase(
+    std::unique_ptr<datastore::cursor>& pos) {
   auto txn = std::make_shared<transaction>(env_, false);
   auto cur = cursor(db_, txn);
-  auto key = pos->first;
+  auto key = pos->key();
   try {
-    ++pos;
+    pos->increment();
   } catch (std::out_of_range&) {
-    pos = end();
+    pos = last();
   }
   cur.seek(key);
   cur.erase();
   txn->commit();
-  return pos;
+  return std::move(pos);
 }
 
 /** datastores::lmdb::environment *********************************************/

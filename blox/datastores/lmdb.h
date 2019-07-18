@@ -1,6 +1,6 @@
 #pragma once
-#include <lmdb.h>
 #include <blox/datastore.h>
+#include <lmdb.h>
 #include <filesystem>
 
 namespace blox::datastores {
@@ -23,14 +23,15 @@ class lmdb final : public datastore {
 
   explicit lmdb(const configuration& config);
   ~lmdb() final = default;
-  std::unique_ptr<cursor> first() override;
-  std::unique_ptr<cursor> last() override;
-  iterator insert(const_iterator iterator, const value_type& value) override;
-  iterator find(key_type key) const override;
-  iterator erase(iterator pos) override;
+  std::unique_ptr<cursor> first() const override;
+  std::unique_ptr<cursor> last() const override;
+  std::unique_ptr<datastore::cursor> insert(
+      std::unique_ptr<datastore::cursor>& pos,
+      const value_type& value) override;
+  std::unique_ptr<cursor> lookup(key_type key) const override;
+  std::unique_ptr<cursor> erase(std::unique_ptr<cursor>& pos) override;
 
  private:
-
   class buffer {
    public:
     /** Creates an empty buffer */
@@ -61,7 +62,6 @@ class lmdb final : public datastore {
     MDB_env* env_;
   };
 
-
   /** Encapsulates an LMDB transaction.
    *
    * A transaction may span multiple databases.
@@ -69,7 +69,7 @@ class lmdb final : public datastore {
   class transaction {
    public:
     transaction();
-    explicit transaction(const environment& env, bool readonly=true);
+    explicit transaction(const environment& env, bool readonly = true);
     ~transaction();
     transaction(transaction&&) = delete;
     transaction(transaction&) = delete;

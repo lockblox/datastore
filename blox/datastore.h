@@ -21,32 +21,37 @@ class datastore {
 
   virtual ~datastore() = default;
 
-  virtual std::unique_ptr<cursor> first() = 0;
-  virtual std::unique_ptr<cursor> last() = 0;
-
   const_iterator begin() const;
   const_iterator cbegin() const;
 
   const_iterator end() const;
   const_iterator cend() const;
 
+  /** Insert an element at the given position */
+  iterator insert(iterator& pos, const value_type& value);
+
   /** Insert a value */
   std::pair<iterator, bool> insert(value_type value);
-
-  /** Insert an element at the given position */
-  virtual iterator insert(const_iterator, const value_type& value) = 0;
 
   /** Erase the value matching the given key */
   size_type erase(key_type key);
 
   /** Erase the element at pos */
-  virtual iterator erase(iterator pos) = 0;
+  iterator erase(iterator& pos);
 
   /** Find a value matching the given key */
-  virtual iterator find(key_type key) const = 0;
+  iterator find(key_type key);
 
   /** Removes all elements from the datastore */
   void clear();
+
+ protected:
+  virtual std::unique_ptr<cursor> insert(std::unique_ptr<cursor>& pos,
+                                         const value_type& value) = 0;
+  virtual std::unique_ptr<cursor> erase(std::unique_ptr<cursor>& pos) = 0;
+  virtual std::unique_ptr<cursor> lookup(key_type key) const = 0;
+  virtual std::unique_ptr<cursor> first() const = 0;
+  virtual std::unique_ptr<cursor> last() const = 0;
 };
 
 /** Interface to iterate through values of a database */
@@ -116,9 +121,7 @@ class datastore::iterator
   /** Determine whether two iterators are unequal */
   bool operator!=(const iterator& rhs) const;
 
-  cursor* get();
-
-  const cursor* get() const;
+  friend class datastore;
 
  protected:
   std::unique_ptr<cursor> cursor_ = nullptr; /** Pointer to underlying cursor */

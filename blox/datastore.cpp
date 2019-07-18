@@ -52,12 +52,6 @@ bool datastore::iterator::operator!=(const iterator& rhs) const {
   return !(*this == rhs);
 }
 
-datastore::cursor* datastore::iterator::get() { return cursor_.get(); }
-
-const datastore::cursor* datastore::iterator::get() const {
-  return cursor_.get();
-}
-
 void datastore::iterator::increment() {
   cursor_->increment();
   value_.reset();
@@ -76,6 +70,19 @@ datastore::size_type datastore::erase(datastore::key_type key) {
     result = 1;
   }
   return result;
+}
+
+datastore::iterator datastore::insert(datastore::iterator& pos,
+                                      const datastore::value_type& value) {
+  return iterator(insert(pos.cursor_, value));
+}
+
+datastore::iterator datastore::erase(datastore::iterator& pos) {
+  return iterator(erase(pos.cursor_));
+}
+
+datastore::iterator datastore::find(datastore::key_type key) {
+  return iterator(lookup(key));
 }
 
 std::pair<datastore::iterator, bool> datastore::insert(

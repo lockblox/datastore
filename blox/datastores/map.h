@@ -8,11 +8,15 @@ namespace blox::datastores {
 class map final : public datastore {
  public:
   using iterator = datastore::iterator;
-  iterator erase(iterator pos) override;
-  iterator find(key_type key) const override;
-  std::unique_ptr<datastore::cursor> first() override;
-  std::unique_ptr<datastore::cursor> last() override;
-  iterator insert(const_iterator iterator, const value_type& value) override;
+  std::unique_ptr<datastore::cursor> erase(
+      std::unique_ptr<datastore::cursor>& pos) override;
+  std::unique_ptr<datastore::cursor> lookup(key_type key) const override;
+  std::unique_ptr<datastore::cursor> first() const override;
+  std::unique_ptr<datastore::cursor> last() const override;
+
+ protected:
+  std::unique_ptr<cursor> insert(std::unique_ptr<cursor>& cursor,
+                                 const value_type& value) override;
 
  private:
   class cursor : public datastore::cursor {

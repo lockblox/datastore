@@ -2,39 +2,37 @@
 
 namespace blox::datastores {
 
-datastore::iterator map::erase(datastore::iterator pos) {
+std::unique_ptr<datastore::cursor> map::erase(
+    std::unique_ptr<datastore::cursor>& pos) {
   auto cursor = dynamic_cast<const map::cursor*>(pos.get());
-  auto result = datastore::iterator();
   if (cursor) {
     auto it = data_.erase(cursor->it_);
-    result = datastore::iterator(std::make_unique<map::cursor>(it));
+    pos = std::make_unique<map::cursor>(it);
   }
-  return result;
+  return std::move(pos);
 }
 
-datastore::iterator map::find(datastore::key_type key) const {
-  return datastore::iterator(std::make_unique<cursor>(data_.find(key)));
+std::unique_ptr<datastore::cursor> map::lookup(datastore::key_type key) const {
+  return std::make_unique<cursor>(data_.find(key));
 }
 
-std::unique_ptr<datastore::cursor> map::first() {
+std::unique_ptr<datastore::cursor> map::first() const {
   return std::make_unique<cursor>(data_.begin());
 }
 
-std::unique_ptr<datastore::cursor> map::last() {
+std::unique_ptr<datastore::cursor> map::last() const {
   return std::make_unique<cursor>(data_.end());
 }
 
-datastore::iterator map::insert(datastore::const_iterator iterator,
-                                const datastore::value_type& value) {
-  auto cursor = dynamic_cast<const map::cursor*>(iterator.get());
-  auto result = map::iterator();
+std::unique_ptr<datastore::cursor> map::insert(
+    std::unique_ptr<datastore::cursor>& pos,
+    const datastore::value_type& value) {
+  auto cursor = dynamic_cast<const map::cursor*>(pos.get());
   if (cursor) {
     auto pair = std::pair(std::string(value.first), std::string(value.second));
-    auto insertion = data_.insert(cursor->it_, pair);
-    result =
-        blox::datastore::iterator(std::make_unique<map::cursor>(insertion));
+    pos = std::make_unique<map::cursor>(data_.insert(cursor->it_, pair));
   }
-  return result;
+  return std::move(pos);
 }
 
 map::cursor::cursor(map::cursor::iterator it) : it_(it) {}
