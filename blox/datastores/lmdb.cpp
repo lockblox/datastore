@@ -154,6 +154,18 @@ std::unique_ptr<datastore::cursor> datastores::lmdb::erase(
   return std::move(pos);
 }
 
+datastore::size_type datastores::lmdb::capacity() const {
+  MDB_envinfo envinfo;
+  call(mdb_env_info(env_, &envinfo));
+  return envinfo.me_mapsize;
+}
+
+datastore::size_type datastores::lmdb::size() const {
+  MDB_stat stat;
+  call(mdb_env_stat(env_, &stat));
+  return stat.ms_entries;
+}
+
 /** datastores::lmdb::environment *********************************************/
 
 datastores::lmdb::environment::environment(

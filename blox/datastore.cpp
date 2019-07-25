@@ -72,6 +72,8 @@ datastore::size_type datastore::erase(datastore::key_type key) {
   return result;
 }
 
+datastore::size_type datastore::max_size() const { return capacity(); }
+
 datastore::iterator datastore::insert(datastore::iterator& pos,
                                       const datastore::value_type& value) {
   return iterator(insert(pos.cursor_, value));
@@ -81,12 +83,12 @@ datastore::iterator datastore::erase(datastore::iterator& pos) {
   return iterator(erase(pos.cursor_));
 }
 
-datastore::iterator datastore::find(datastore::key_type key) {
+datastore::iterator datastore::find(datastore::key_type key) const {
   return iterator(lookup(key));
 }
 
 std::pair<datastore::iterator, bool> datastore::insert(
-    datastore::value_type value) {
+    const datastore::value_type& value) {
   auto result = std::pair(find(value.first), false);
   if (result.first == end()) {
     result = std::pair(insert(result.first, value), true);
@@ -100,4 +102,10 @@ void datastore::clear() {
   }
 }
 
+datastore::size_type datastore::size() const {
+  return std::accumulate(begin(), end(), size_type{0},
+                         [](size_type x, auto&) { return x + 1; });
+}
+
+bool datastore::empty() const { return begin() == end(); }
 }  // namespace blox

@@ -23,6 +23,10 @@ class lmdb final : public datastore {
 
   explicit lmdb(const configuration& config);
   ~lmdb() final = default;
+
+  size_type size() const override;
+
+ protected:
   std::unique_ptr<cursor> first() const override;
   std::unique_ptr<cursor> last() const override;
   std::unique_ptr<datastore::cursor> insert(
@@ -30,6 +34,7 @@ class lmdb final : public datastore {
       const value_type& value) override;
   std::unique_ptr<cursor> lookup(key_type key) const override;
   std::unique_ptr<cursor> erase(std::unique_ptr<cursor>& pos) override;
+  size_type capacity() const override;
 
  private:
   class buffer {

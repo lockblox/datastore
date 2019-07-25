@@ -2,13 +2,13 @@
 
 #include <blox/block.h>
 #include <blox/datastore.h>
+#include <boost/iterator/transform_iterator.hpp>
+#include <functional>
 
 namespace blox {
 class blockstore {
  public:
-  class iterator;
-  using const_iterator = const iterator;
-
+  using transform = std::function<block(datastore::const_reference)>;
   using key_type = block;
   using value_type = block;
   using size_type = datastore::size_type;
@@ -17,8 +17,11 @@ class blockstore {
   using const_reference = const value_type&;
   using pointer = value_type*;
   using const_pointer = const value_type*;
+  using iterator = boost::transform_iterator<transform, datastore::iterator,
+                                             reference, value_type>;
+  using const_iterator = const iterator;
 
-  explicit blockstore(std::unique_ptr<datastore> ds);
+  explicit blockstore(std::unique_ptr<datastore> datastore);
   blockstore(blockstore&&) = default;
   blockstore& operator=(blockstore&&) = default;
   ~blockstore() = default;
@@ -33,81 +36,29 @@ class blockstore {
   const_iterator cend();
 
   /** Checks whether the container is empty */
-  bool empty();
+  bool empty() const;
   /** Returns the number of blocks */
-  size_type size();
+  size_type size() const;
   /** Returns the maximum possible number of blocks */
-  size_type max_size();
+  size_type max_size() const;
 
   // Modifiers
 
   /** Clears the contents */
   void clear();
   /** Inserts elements */
-  std::pair<iterator, bool> insert(value_type value);
+  std::pair<iterator, bool> insert(const value_type& value);
   /** Inserts blocks */
   iterator insert(const_iterator, const value_type& value);
   /** Erases blocks */
   size_type erase(const key_type& key);
 
   // Lookup
-  iterator find(const key_type& key);
+  iterator find(const key_type& key) const;
 
  private:
   std::unique_ptr<datastore> datastore_;
-};
-
-class blockstore::iterator {
- public:
-  using iterator_category = std::bidirectional_iterator_tag;
-  using value_type = datastore::value_type;
-  using difference_type = std::ptrdiff_t;
-  using pointer = value_type*;
-  using reference = value_type&;
-
-  /** Create a sentinel iterator */
-  iterator() = default;
-
-  /** Construct from a cursor */
-  explicit iterator(std::unique_ptr<datastore::cursor> cursor);
-
-  /** Construct a copy */
-  iterator(const iterator& rhs);
-
-  /** Assign a copy */
-  iterator& operator=(const iterator& rhs);
-
-  /** Construct from rvalue reference */
-  iterator(iterator&&) = default;
-
-  /** Assign from rvalue reference */
-  iterator& operator=(iterator&&) = default;
-
-  virtual ~iterator() = default;
-
-  /** Access the current value */
-  const value_type* operator->() const;
-
-  /** Get the current value */
-  const value_type& operator*() const;
-
-  /** Pre-increment */
-  iterator& operator++();
-
-  /** Pre-decrement */
-  iterator& operator--();
-
-  /** Determine whether two iterators are equal */
-  bool operator==(const iterator& rhs) const;
-
-  /** Determine whether two iterators are unequal */
-  bool operator!=(const iterator& rhs) const;
-
- protected:
-  std::unique_ptr<datastore::iterator> iterator_ =
-      nullptr; /** Pointer to underlying iterator */
- private:
-  const value_type& value() const;
+  transform transform_;
 };
 
 }  // namespace blox

@@ -35,6 +35,8 @@ std::unique_ptr<datastore::cursor> map::insert(
   return std::move(pos);
 }
 
+datastore::size_type map::capacity() const { return data_.max_size(); }
+
 map::cursor::cursor(map::cursor::iterator it) : it_(it) {}
 
 std::string_view map::cursor::key() const { return it_->first; }

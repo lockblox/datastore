@@ -28,9 +28,13 @@ using lmdb_configuration = blox::datastores::lmdb::configuration;
 class datastore
     : public testing::TestWithParam<std::shared_ptr<blox::datastore>> {};
 
+
 TEST_P(datastore, clear) {
   auto datastore = GetParam();
   datastore->clear();
+  EXPECT_TRUE(datastore->empty());
+  EXPECT_EQ(0, datastore->size());
+  EXPECT_LT(0, datastore->max_size());
 }
 
 TEST_P(datastore, find) {
