@@ -111,7 +111,7 @@ std::unique_ptr<datastore::cursor> datastores::lmdb::last() const {
 }
 
 std::unique_ptr<datastore::cursor> datastores::lmdb::insert(
-    std::unique_ptr<datastore::cursor>& pos,
+    std::unique_ptr<datastore::cursor> pos,
     const datastore::value_type& value) {
   (void)(pos);
   auto txn = std::make_shared<transaction>(env_, false);

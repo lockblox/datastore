@@ -18,7 +18,8 @@ class datastore {
   using mapped_type = std::string_view;
   using value_type = std::pair<std::string_view, std::string_view>;
   using reference = std::add_lvalue_reference<value_type>::type;
-  using const_reference = std::add_const<reference>::type;
+  using const_reference =
+      std::add_lvalue_reference<std::add_const<value_type>::type>::type;
   using size_type = std::size_t;
 
   virtual ~datastore() = default;
@@ -61,7 +62,7 @@ class datastore {
   virtual void clear();
 
   /** Inserts an element at the given position */
-  iterator insert(iterator& pos, const value_type& value);
+  iterator insert(iterator pos, const value_type& value);
 
   /** Inserts a value */
   std::pair<iterator, bool> insert(const value_type& value);
@@ -78,7 +79,7 @@ class datastore {
   iterator find(key_type key) const;
 
  protected:
-  virtual std::unique_ptr<cursor> insert(std::unique_ptr<cursor>& pos,
+  virtual std::unique_ptr<cursor> insert(std::unique_ptr<cursor> pos,
                                          const value_type& value) = 0;
   virtual std::unique_ptr<cursor> erase(std::unique_ptr<cursor>& pos) = 0;
   virtual std::unique_ptr<cursor> lookup(key_type key) const = 0;

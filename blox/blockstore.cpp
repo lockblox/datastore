@@ -37,4 +37,24 @@ std::pair<blockstore::iterator, bool> blockstore::insert(
   return std::pair(iterator(result.first), result.second);
 }
 
+blockstore::size_type blockstore::max_size() const {
+  return datastore_->max_size();
+}
+
+blockstore::iterator blockstore::insert(blockstore::const_iterator pos,
+                                        const blockstore::value_type& value) {
+  auto key = static_cast<std::string_view>(value.key());
+  auto kv = std::pair(key, value.data());
+  auto result = datastore_->insert(pos.base(), kv);
+  return iterator(result);
+}
+
+blockstore::iterator blockstore::find(const blockstore::key_type& key) const {
+  return iterator(datastore_->find(static_cast<std::string_view>(key.key())));
+}
+
+blockstore::size_type blockstore::erase(const blockstore::key_type& key) {
+  return datastore_->erase(static_cast<std::string_view>(key.key()));
+}
+
 }  // namespace blox

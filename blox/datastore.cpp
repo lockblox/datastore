@@ -1,4 +1,5 @@
 #include <blox/datastore.h>
+#include <stdexcept>
 
 namespace blox {
 
@@ -74,9 +75,9 @@ datastore::size_type datastore::erase(datastore::key_type key) {
 
 datastore::size_type datastore::max_size() const { return capacity(); }
 
-datastore::iterator datastore::insert(datastore::iterator& pos,
+datastore::iterator datastore::insert(datastore::iterator pos,
                                       const datastore::value_type& value) {
-  return iterator(insert(pos.cursor_, value));
+  return iterator(insert(std::move(pos.cursor_), value));
 }
 
 datastore::iterator datastore::erase(datastore::iterator& pos) {
@@ -85,6 +86,16 @@ datastore::iterator datastore::erase(datastore::iterator& pos) {
 
 datastore::iterator datastore::find(datastore::key_type key) const {
   return iterator(lookup(key));
+}
+
+const datastore::value_type& datastore::at(const datastore::key_type& key) {
+  auto it = find(key);
+  if (it == end()) {
+    throw std::out_of_range{"key not found"};
+  }
+  else {
+    return *it;
+  }
 }
 
 std::pair<datastore::iterator, bool> datastore::insert(

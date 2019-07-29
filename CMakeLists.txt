@@ -44,7 +44,7 @@ if(BUILD_TESTING)
     find_package(GTest MODULE REQUIRED)
     add_executable(blox_test
             test/datastore_test.cpp
-                   test/main.cpp test/block_test.cpp)
+                   test/main.cpp test/block_test.cpp test/blockstore_test.cpp)
     target_link_libraries(blox_test PRIVATE libblox GTest::GTest GTest::Main)
     #gtest_discover_tests(blox_test)
     if (MSVC) 

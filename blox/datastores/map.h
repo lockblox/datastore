@@ -18,7 +18,7 @@ class map final : public datastore {
   size_type capacity() const override;
 
  protected:
-  std::unique_ptr<cursor> insert(std::unique_ptr<cursor>& cursor,
+  std::unique_ptr<cursor> insert(std::unique_ptr<cursor> cursor,
                                  const value_type& value) override;
 
  private:

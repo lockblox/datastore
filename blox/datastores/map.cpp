@@ -25,7 +25,7 @@ std::unique_ptr<datastore::cursor> map::last() const {
 }
 
 std::unique_ptr<datastore::cursor> map::insert(
-    std::unique_ptr<datastore::cursor>& pos,
+    std::unique_ptr<datastore::cursor> pos,
     const datastore::value_type& value) {
   auto cursor = dynamic_cast<const map::cursor*>(pos.get());
   if (cursor) {
@@ -55,4 +55,5 @@ void map::cursor::decrement() { --it_; }
 std::unique_ptr<datastore::cursor> map::cursor::clone() const {
   return std::make_unique<map::cursor>(it_);
 }
+
 }  // namespace blox::datastores
