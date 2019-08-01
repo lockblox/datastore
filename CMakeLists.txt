@@ -68,7 +68,15 @@ install(TARGETS libblox
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
-install(FILES ${HEADER_FILES} DESTINATION include/blox)
+install(FILES
+        blox/blockstore.h
+        blox/datastore.h
+        blox/block.h
+        DESTINATION include/blox)
+install(FILES
+        blox/datastores/lmdb.h
+        blox/datastores/map.h
+        DESTINATION include/blox/datastores)
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
