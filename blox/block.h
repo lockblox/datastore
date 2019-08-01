@@ -31,11 +31,14 @@ class block {
   /** Creates a block from values */
   explicit block(key_type key, mapped_type data = mapped_type{});
 
+  /** Checks whether the block is empty */
+  [[nodiscard]] bool empty() const;
+
   /** Returns the unique identifier of the block */
-  key_type key() const;
+  [[nodiscard]] key_type key() const;
 
   /** Returns the block data */
-  mapped_type data() const;
+  [[nodiscard]] mapped_type data() const;
 
  private:
   std::unique_ptr<char[]> buffer_;

@@ -3,8 +3,8 @@
 
 namespace test {
 
-TEST(blocks, equal) {
-    auto a = blox::block("some data");
+TEST(block, equal) {
+  auto a = blox::block("some data");
     auto b = blox::block("some other data");
     EXPECT_NE(a, b);
     b = blox::block(a.key(), b.data()); // make keys match
@@ -23,7 +23,12 @@ TEST(blocks, equal) {
     EXPECT_EQ(a_move, a_copy);
 }
 
-TEST(blocks, set) {
+TEST(block, empty) {
+  auto block = blox::block("non-empty block");
+  EXPECT_FALSE(block.empty());
+}
+
+TEST(block, set) {
   auto block_set = std::set<blox::block>{blox::block("a"), blox::block("b"),
                                          blox::block("c"), blox::block("d"),
                                          blox::block("a"), blox::block("b")};

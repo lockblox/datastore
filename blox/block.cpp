@@ -46,6 +46,8 @@ blox::block::key_type blox::block::key() const { return key_; }
 
 block::mapped_type block::data() const { return data_; }
 
+bool block::empty() const { return data_.empty(); }
+
 bool operator==(const block& lhs, const block& rhs) {
   return !(lhs < rhs) && !(rhs < lhs);
 }
