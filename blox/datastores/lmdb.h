@@ -11,9 +11,9 @@ class lmdb final : public datastore {
    public:
     explicit configuration(std::filesystem::path path, unsigned int flags = 0,
                            mdb_mode_t mode = 0644);
-    const std::filesystem::path& path() const;
-    unsigned int flags() const;
-    mdb_mode_t mode() const;
+    [[nodiscard]] const std::filesystem::path& path() const;
+    [[nodiscard]] unsigned int flags() const;
+    [[nodiscard]] mdb_mode_t mode() const;
 
    private:
     std::filesystem::path path_;
@@ -24,17 +24,17 @@ class lmdb final : public datastore {
   explicit lmdb(const configuration& config);
   ~lmdb() final = default;
 
-  size_type size() const override;
+  [[nodiscard]] size_type size() const override;
 
  protected:
-  std::unique_ptr<cursor> first() const override;
-  std::unique_ptr<cursor> last() const override;
+  [[nodiscard]] std::unique_ptr<cursor> first() const override;
+  [[nodiscard]] std::unique_ptr<cursor> last() const override;
   std::unique_ptr<datastore::cursor> insert(
       std::unique_ptr<datastore::cursor> pos,
       const value_type& value) override;
-  std::unique_ptr<cursor> lookup(key_type key) const override;
+  [[nodiscard]] std::unique_ptr<cursor> lookup(key_type key) const override;
   std::unique_ptr<cursor> erase(std::unique_ptr<cursor>& pos) override;
-  size_type capacity() const override;
+  [[nodiscard]] size_type capacity() const override;
 
  private:
   class buffer {
@@ -102,7 +102,7 @@ class lmdb final : public datastore {
     explicit database(const environment& env,
                       std::string_view name = std::string_view());
 
-    const datastores::lmdb::environment& environment() const;
+    [[nodiscard]] const datastores::lmdb::environment& environment() const;
 
     database(const database&) = default;
     database(database&&) = default;
@@ -146,18 +146,18 @@ class lmdb final : public datastore {
     void erase();
 
     /** Returns the key at the current position */
-    key_type key() const override;
+    [[nodiscard]] key_type key() const override;
 
     /** Returns the value at the current position */
-    mapped_type value() const override;
+    [[nodiscard]] mapped_type value() const override;
 
     /** Compares with another cursor */
-    bool equal(const datastore::cursor& rhs) const override;
+    [[nodiscard]] bool equal(const datastore::cursor& rhs) const override;
 
     void increment() override;
     void decrement() override;
 
-    std::unique_ptr<datastore::cursor> clone() const override;
+    [[nodiscard]] std::unique_ptr<datastore::cursor> clone() const override;
 
    private:
     database database_;

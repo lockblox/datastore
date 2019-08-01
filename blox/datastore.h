@@ -36,25 +36,25 @@ class datastore {
   // Iterators
 
   /** Returns an iterator to the beginning */
-  const_iterator begin() const;
+  [[nodiscard]] const_iterator begin() const;
   /** Returns an iterator to the beginning */
-  const_iterator cbegin() const;
+  [[nodiscard]] const_iterator cbegin() const;
 
   /** Returns an iterator to the end */
-  const_iterator end() const;
+  [[nodiscard]] const_iterator end() const;
   /** Returns an iterator to the end */
-  const_iterator cend() const;
+  [[nodiscard]] const_iterator cend() const;
 
   // Capacity
 
   /** Checks whether the datastore is empty */
-  virtual bool empty() const;
+  [[nodiscard]] virtual bool empty() const;
 
   /** Returns the number of elements in the datastore */
-  virtual size_type size() const;
+  [[nodiscard]] virtual size_type size() const;
 
   /** Returns the maximum possible number of elements in the datastore */
-  size_type max_size() const;
+  [[nodiscard]] size_type max_size() const;
 
   // Modifiers
 
@@ -76,16 +76,16 @@ class datastore {
   // Lookup
 
   /** Finds an element matching the given key */
-  iterator find(key_type key) const;
+  [[nodiscard]] iterator find(key_type key) const;
 
  protected:
   virtual std::unique_ptr<cursor> insert(std::unique_ptr<cursor> pos,
                                          const value_type& value) = 0;
   virtual std::unique_ptr<cursor> erase(std::unique_ptr<cursor>& pos) = 0;
-  virtual std::unique_ptr<cursor> lookup(key_type key) const = 0;
-  virtual std::unique_ptr<cursor> first() const = 0;
-  virtual std::unique_ptr<cursor> last() const = 0;
-  virtual size_type capacity() const = 0;
+  [[nodiscard]] virtual std::unique_ptr<cursor> lookup(key_type key) const = 0;
+  [[nodiscard]] virtual std::unique_ptr<cursor> first() const = 0;
+  [[nodiscard]] virtual std::unique_ptr<cursor> last() const = 0;
+  [[nodiscard]] virtual size_type capacity() const = 0;
 };
 
 /** Interface to iterate through values of a database */
@@ -94,16 +94,16 @@ class datastore::cursor {
   /** Destroy a cursor */
   virtual ~cursor() = default;
 
-  virtual std::unique_ptr<cursor> clone() const = 0;
+  [[nodiscard]] virtual std::unique_ptr<cursor> clone() const = 0;
 
   /** Get the current key */
-  virtual std::string_view key() const = 0;
+  [[nodiscard]] virtual std::string_view key() const = 0;
 
   /** Get the current value */
-  virtual std::string_view value() const = 0;
+  [[nodiscard]] virtual std::string_view value() const = 0;
 
   /** Compare for equality*/
-  virtual bool equal(const cursor& rhs) const = 0;
+  [[nodiscard]] virtual bool equal(const cursor& rhs) const = 0;
 
   /** Move the cursor forwards */
   virtual void increment() = 0;

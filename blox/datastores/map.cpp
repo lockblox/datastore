@@ -32,7 +32,7 @@ std::unique_ptr<datastore::cursor> map::insert(
     auto pair = std::pair(std::string(value.first), std::string(value.second));
     pos = std::make_unique<map::cursor>(data_.insert(cursor->it_, pair));
   }
-  return std::move(pos);
+  return pos;
 }
 
 datastore::size_type map::capacity() const { return data_.max_size(); }
