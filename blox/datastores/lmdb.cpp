@@ -99,7 +99,6 @@ std::unique_ptr<datastore::cursor> datastores::lmdb::first() const {
   auto result = std::make_unique<cursor>(db_, txn);
   try {
     result->first();
-    result->key();
     return result;
   } catch (std::out_of_range&) {
     return last();
