@@ -24,7 +24,7 @@ add_library(libblox
         blox/blockstore.h)
 
 set_target_properties(libblox PROPERTIES OUTPUT_NAME blox)
-target_include_directories(libblox PUBLIC 
+target_include_directories(libblox PUBLIC
                            $<BUILD_INTERFACE:${blox_SOURCE_DIR}>
                            ${lmdb_INCLUDE_DIRS}
                            $<INSTALL_INTERFACE:include>)
@@ -44,9 +44,11 @@ if(BUILD_TESTING)
     find_package(GTest MODULE REQUIRED)
     add_executable(blox_test
             test/datastore_test.cpp
-                   test/main.cpp test/block_test.cpp test/blockstore_test.cpp)
+            test/main.cpp
+            test/block_test.cpp
+            test/blockstore_test.cpp)
     target_link_libraries(blox_test PRIVATE libblox GTest::GTest GTest::Main)
-    #gtest_discover_tests(blox_test)
+    gtest_discover_tests(blox_test)
     if (MSVC) 
         target_compile_options(blox_test PRIVATE /W4 /WX /MP)
     else() 
