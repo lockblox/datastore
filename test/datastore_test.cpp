@@ -1,7 +1,6 @@
 #include <blox/datastores/lmdb.h>
 #include <blox/datastores/map.h>
 #include <gtest/gtest.h>
-#include <cstdio>
 #include <sstream>
 
 namespace std {
@@ -62,9 +61,15 @@ TEST_P(datastore, copy) {
             std::inserter(*datastore, datastore->end()));
   auto it = datastore->find("b");
   ASSERT_NE(datastore->end(), it);
+  EXPECT_NO_THROW(datastore->at("b"));
   EXPECT_EQ("2", it->second);
   EXPECT_TRUE(std::equal(input.begin(), input.end(), datastore->begin(),
                          datastore->end()));
+}
+
+TEST_P(datastore, at) {
+  auto datastore = GetParam();
+  EXPECT_THROW(datastore->at("non-existent key"), std::out_of_range);
 }
 
 INSTANTIATE_TEST_CASE_P(
