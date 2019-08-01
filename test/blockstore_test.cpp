@@ -40,6 +40,18 @@ TEST_P(blockstore, insert) {
   EXPECT_EQ(0, blockstore->size());
 }
 
+TEST_P(blockstore, iteration) {
+  auto blockstore = GetParam();
+  blockstore->clear();
+  auto input = std::set<blox::block>{blox::block{"a"}, blox::block{"b"},
+                                     blox::block{"c"}};
+  std::copy(input.begin(), input.end(),
+            std::inserter(*blockstore, blockstore->end()));
+  EXPECT_EQ(input.size(), blockstore->size());
+  EXPECT_TRUE(std::equal(input.begin(), input.end(), blockstore->begin(),
+                         blockstore->end()));
+}
+
 INSTANTIATE_TEST_CASE_P(blox, blockstore,
                         ::testing::Values(std::make_shared<blox::blockstore>(
                             std::make_unique<blox::datastores::map>())), );

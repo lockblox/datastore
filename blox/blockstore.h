@@ -18,7 +18,7 @@ class blockstore {
   using pointer = value_type*;
   using const_pointer = const value_type*;
   using iterator = boost::transform_iterator<transform, datastore::iterator,
-                                             reference, value_type>;
+                                             value_type, value_type>;
   using const_iterator = const iterator;
 
   explicit blockstore(std::unique_ptr<datastore> datastore);
@@ -36,11 +36,11 @@ class blockstore {
   const_iterator cend();
 
   /** Checks whether the container is empty */
-  bool empty() const;
+  [[nodiscard]] bool empty() const;
   /** Returns the number of blocks */
-  size_type size() const;
+  [[nodiscard]] size_type size() const;
   /** Returns the maximum possible number of blocks */
-  size_type max_size() const;
+  [[nodiscard]] size_type max_size() const;
 
   // Modifiers
 
@@ -54,7 +54,7 @@ class blockstore {
   size_type erase(const key_type& key);
 
   // Lookup
-  iterator find(const key_type& key) const;
+  [[nodiscard]] iterator find(const key_type& key) const;
 
  private:
   std::unique_ptr<datastore> datastore_;
