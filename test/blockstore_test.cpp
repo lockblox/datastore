@@ -54,6 +54,6 @@ TEST_P(blockstore, iteration) {
 
 INSTANTIATE_TEST_CASE_P(blox, blockstore,
                         ::testing::Values(std::make_shared<blox::blockstore>(
-                            std::make_unique<blox::datastores::map>())), );
+                            blox::datastores::make_map())), );
 
 }  // namespace test

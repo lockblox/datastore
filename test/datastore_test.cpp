@@ -22,11 +22,10 @@ bool operator==(const std::pair<std::string_view, std::string_view>& lhs,
 
 namespace test {
 
-using lmdb_configuration = blox::datastores::lmdb::configuration;
+using lmdb_configuration = blox::datastores::lmdb_configuration;
 
 class datastore
     : public testing::TestWithParam<std::shared_ptr<blox::datastore>> {};
-
 
 TEST_P(datastore, clear) {
   auto datastore = GetParam();
@@ -74,9 +73,10 @@ TEST_P(datastore, at) {
 
 INSTANTIATE_TEST_CASE_P(
     blox, datastore,
-    ::testing::Values(std::make_shared<blox::datastores::map>(),
-                      std::make_shared<blox::datastores::lmdb>(
-                          blox::datastores::lmdb::configuration(
-                              std::filesystem::temp_directory_path()))), );
+    ::testing::Values(
+        blox::datastores::make_map().release(),
+        blox::datastores::make_lmdb(
+            lmdb_configuration(std::filesystem::temp_directory_path()))
+            .release()), );
 
 }  // namespace test
