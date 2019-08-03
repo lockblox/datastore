@@ -1,14 +1,14 @@
 FROM lockblox/orthodox:latest
 
-RUN cd ${HOME} \
- && git clone https://github.com/lockblox/vcpkg.git \
- && cd vcpkg \
- && ./bootstrap-vcpkg.sh \
- && ./vcpkg integrate install \
- && ./vcpkg install gtest lmdb boost-iterator \
+RUN cd ${VCPKG_ROOT} \
+ && git remote add lockblox https://github.com/lockblox/vcpkg.git \
+ && git config user.name "engineering" \
+ && git config user.email "engineering@lockblox.com" \
+ && git pull lockblox master \
+ && rm -rf downloads \
+ && ./vcpkg install lmdb \
+ && ./vcpkg install boost-iterator \
  && ./vcpkg install --head varint \
  && ./vcpkg install --head multihash
-
-ENV CMAKE_CONFIG_ARGS "-DCMAKE_TOOLCHAIN_FILE=/root/vcpkg/scripts/buildsystems/vcpkg.cmake"
 
 COPY . /root/src
