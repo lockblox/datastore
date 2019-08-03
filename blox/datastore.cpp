@@ -92,8 +92,7 @@ const datastore::value_type& datastore::at(const datastore::key_type& key) {
   auto it = find(key);
   if (it == end()) {
     throw std::out_of_range{"key not found"};
-  }
-  else {
+  } else {
     return *it;
   }
 }
