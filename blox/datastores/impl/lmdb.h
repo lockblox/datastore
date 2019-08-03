@@ -29,7 +29,7 @@ class lmdb final : public datastore {
     /** Creates a buffer from reference data */
     buffer(const std::string_view& data);
 
-    operator std::string_view();
+    operator std::string_view() const;
 
     /** Converts to the underlying LMDB datatype */
     operator MDB_val*();
@@ -68,10 +68,13 @@ class lmdb final : public datastore {
     void abort();
     void commit();
 
+    [[nodiscard]] bool readonly() const;
+
     operator MDB_txn*();
 
    private:
     MDB_txn* txn_;
+    bool readonly_;
   };
 
   /** Encapsulates an LMDB database.
@@ -102,7 +105,7 @@ class lmdb final : public datastore {
     MDB_dbi dbi_;
   };
 
-  class cursor : public datastore::cursor {
+  class cursor final : public datastore::cursor {
    public:
     using value_type = datastore::value_type;
     using key_type = datastore::key_type;
@@ -110,6 +113,14 @@ class lmdb final : public datastore {
 
     /** Creates a sentinel cursor */
     cursor();
+
+    /** Destroys a cursor */
+    ~cursor() override;
+
+    cursor(const cursor&) = delete;
+    cursor& operator=(const cursor&) = delete;
+    cursor(cursor&&) noexcept;
+    cursor& operator=(cursor&&) noexcept;
 
     /** Creates a cursor */
     explicit cursor(database db, std::shared_ptr<transaction> txn);
@@ -143,9 +154,14 @@ class lmdb final : public datastore {
 
     [[nodiscard]] std::unique_ptr<datastore::cursor> clone() const override;
 
+    [[nodiscard]] const lmdb::transaction& transaction() const;
+
+    void close();
+
    private:
+    buffer key_, value_;
     database database_;
-    std::shared_ptr<transaction> transaction_;
+    std::shared_ptr<lmdb::transaction> transaction_;
     MDB_cursor* cursor_;
   };
 

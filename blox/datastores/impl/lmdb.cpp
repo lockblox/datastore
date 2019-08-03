@@ -1,6 +1,4 @@
-#include <blox/datastores/impl/lmdb.h>
-#include <lmdb.h>
-#include <cassert>
+#include "lmdb.h"
 #include <iostream>
 #include <map>
 #include <utility>
@@ -65,8 +63,6 @@ void call(int status) {
       throw std::invalid_argument(message);
     case MDB_BAD_DBI:
       throw std::invalid_argument(message);
-    case MDB_PROBLEM:
-      throw std::runtime_error(message);
     default:
       throw std::runtime_error(message);
   }
@@ -120,22 +116,27 @@ std::unique_ptr<datastore::cursor> lmdb::lookup(datastore::key_type key) const {
     return result;
   } catch (std::out_of_range&) {
     return last();
+  } catch (std::invalid_argument&) {
+    return last();
   }
 }
 
 std::unique_ptr<datastore::cursor> lmdb::erase(
     std::unique_ptr<datastore::cursor>& pos) {
-  auto txn = std::make_shared<transaction>(env_, false);
-  auto cur = cursor(db_, txn);
   auto key = pos->key();
   try {
     pos->increment();
   } catch (std::out_of_range&) {
     pos = last();
   }
-  cur.seek(key);
-  cur.erase();
-  txn->commit();
+  {
+    auto txn = std::make_shared<transaction>(env_, false);
+    auto cur = cursor(db_, txn);
+    cur.seek(key);
+    cur.erase();
+    cur.close();
+    txn->commit();
+  }
   return std::move(pos);
 }
 
@@ -169,6 +170,7 @@ lmdb::environment::environment(const std::filesystem::path& directory)
 lmdb::environment::~environment() { mdb_env_close(env_); }
 
 lmdb::environment::operator MDB_env*() const { return env_; }
+
 bool lmdb::environment::operator==(const lmdb::environment& rhs) {
   return env_ == rhs.env_;
 }
@@ -178,7 +180,7 @@ bool lmdb::environment::operator==(const lmdb::environment& rhs) {
 lmdb::transaction::transaction() : txn_(nullptr) {}
 
 lmdb::transaction::transaction(const lmdb::environment& env, bool readonly)
-    : txn_(nullptr) {
+    : txn_(nullptr), readonly_(readonly) {
   transaction parent;
   unsigned int flags = readonly ? MDB_RDONLY : 0;
   call(
@@ -202,6 +204,8 @@ void lmdb::transaction::commit() {
 }
 
 lmdb::transaction::operator MDB_txn*() { return txn_; }
+
+bool lmdb::transaction::readonly() const { return readonly_; }
 
 /** lmdb::database ************************************************/
 
@@ -233,7 +237,7 @@ lmdb::buffer::buffer(const std::string_view& data)
 
 lmdb::buffer::operator MDB_val*() { return &data_; }
 
-lmdb::buffer::operator std::string_view() {
+lmdb::buffer::operator std::string_view() const {
   return std::string_view(static_cast<const char*>(data_.mv_data),
                           data_.mv_size);
 }
@@ -244,40 +248,55 @@ lmdb::cursor::cursor() : cursor_(nullptr) {}
 
 lmdb::cursor::cursor(lmdb::database db, std::shared_ptr<lmdb::transaction> txn)
     : database_(db), transaction_(std::move(txn)), cursor_(nullptr) {
-  assert(transaction_);
-  call(mdb_cursor_open(*transaction_, db, &cursor_));
+  if (transaction_) {
+    call(mdb_cursor_open(*transaction_, db, &cursor_));
+  }
+}
+
+lmdb::cursor::cursor(lmdb::cursor&& rhs) noexcept
+    : database_(rhs.database_),
+      transaction_(std::move(rhs.transaction_)),
+      cursor_(rhs.cursor_) {
+  rhs.database_ = lmdb::database();
+  rhs.cursor_ = nullptr;
+}
+
+lmdb::cursor& lmdb::cursor::operator=(lmdb::cursor&& rhs) noexcept {
+  database_ = rhs.database_;
+  transaction_ = std::move(rhs.transaction_);
+  cursor_ = rhs.cursor_;
+
+  rhs.database_ = lmdb::database();
+  rhs.transaction_ = nullptr;
+  rhs.cursor_ = nullptr;
+  return *this;
 }
 
 void lmdb::cursor::seek(const key_type& key) {
-  call(mdb_cursor_get(cursor_, buffer(key), buffer(), MDB_SET));
+  key_ = key;
+  call(mdb_cursor_get(cursor_, key_, value_, MDB_SET));
 }
 
 void lmdb::cursor::set(const mapped_type& value) {
+  value_ = value;
   unsigned int flags = MDB_CURRENT;
-  call(mdb_cursor_put(cursor_, buffer(key()), buffer(value), flags));
+  call(mdb_cursor_put(cursor_, key_, value_, flags));
 }
 
 void lmdb::cursor::put(const value_type& value) {
   unsigned int flags = 0;
-  call(mdb_cursor_put(cursor_, buffer(value.first), buffer(value.second),
-                      flags));
+  key_ = value.first;
+  value_ = value.second;
+  call(mdb_cursor_put(cursor_, key_, value_, flags));
 }
 
-std::string_view lmdb::cursor::key() const {
-  buffer key, value;
-  call(mdb_cursor_get(cursor_, key, value, MDB_GET_CURRENT));
-  return key;
-}
+std::string_view lmdb::cursor::key() const { return key_; }
 
-std::string_view lmdb::cursor::value() const {
-  buffer key, value;
-  call(mdb_cursor_get(cursor_, key, value, MDB_GET_CURRENT));
-  return value;
-}
+std::string_view lmdb::cursor::value() const { return value_; }
 
 bool lmdb::cursor::equal(const datastore::cursor& rhs) const {
   try {
-    auto cursor = dynamic_cast<const lmdb::cursor&>(rhs);
+    const auto& cursor = dynamic_cast<const lmdb::cursor&>(rhs);
     return database_ == cursor.database_ &&
            transaction_ == cursor.transaction_ && cursor_ == cursor.cursor_;
   } catch (std::bad_cast&) {
@@ -286,21 +305,27 @@ bool lmdb::cursor::equal(const datastore::cursor& rhs) const {
 }
 
 void lmdb::cursor::increment() {
-  buffer key, value;
   try {
-    call(mdb_cursor_get(cursor_, key, value, MDB_NEXT));
+    call(mdb_cursor_get(cursor_, key_, value_, MDB_NEXT));
   } catch (std::out_of_range&) {
     *this = cursor();
   }
 }
 
 void lmdb::cursor::decrement() {
-  buffer key, value;
-  call(mdb_cursor_get(cursor_, key, value, MDB_PREV));
+  try {
+    call(mdb_cursor_get(cursor_, key_, value_, MDB_PREV));
+  } catch (std::out_of_range&) {
+    *this = cursor();
+  }
 }
 
 std::unique_ptr<datastore::cursor> lmdb::cursor::clone() const {
-  return std::make_unique<lmdb::cursor>(*this);
+  auto result = std::make_unique<lmdb::cursor>(database_, transaction_);
+  if (database_ && transaction_ && key() != buffer()) {
+    result->seek(key());
+  }
+  return result;
 }
 
 void lmdb::cursor::erase() {
@@ -309,7 +334,16 @@ void lmdb::cursor::erase() {
 }
 
 void lmdb::cursor::first() {
-  call(mdb_cursor_get(cursor_, buffer(), buffer(), MDB_FIRST));
+  call(mdb_cursor_get(cursor_, key_, value_, MDB_FIRST));
 }
+
+void lmdb::cursor::close() {
+  if (cursor_) {
+    mdb_cursor_close(cursor_);
+    cursor_ = nullptr;
+  }
+}
+
+lmdb::cursor::~cursor() { close(); }
 
 }  // namespace blox::datastores::impl
