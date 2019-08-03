@@ -30,7 +30,7 @@ add_library(libblox
 set_target_properties(libblox PROPERTIES OUTPUT_NAME blox)
 target_include_directories(libblox PUBLIC
                            $<BUILD_INTERFACE:${blox_SOURCE_DIR}>
-                           ${lmdb_INCLUDE_DIRS}
+        $<BUILD_INTERFACE:${lmdb_INCLUDE_DIRS}>
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries(libblox PRIVATE lmdb libmultihash cryptopp-static)
 if (MSVC)
