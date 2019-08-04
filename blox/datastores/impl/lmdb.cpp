@@ -95,16 +95,14 @@ std::unique_ptr<datastore::cursor> lmdb::last() const {
 std::unique_ptr<datastore::cursor> lmdb::insert(
     std::unique_ptr<datastore::cursor> pos,
     const datastore::value_type& value) {
-  auto txn = std::make_shared<transaction>(env_, false);
   {
-    auto cursor = lmdb::cursor{db_, txn};
+    auto cursor = lmdb::cursor{db_, std::make_shared<transaction>(env_, false)};
     cursor.put(value);
-    txn->commit();
+    cursor.transaction()->commit();
   }
   auto cursor = dynamic_cast<lmdb::cursor*>(pos.get());
   if (!cursor || *cursor == lmdb::cursor::default_instance()) {
-    txn = std::make_shared<transaction>(env_);
-    pos = std::make_unique<lmdb::cursor>(db_, std::move(txn));
+    pos = std::make_unique<lmdb::cursor>(db_);
     cursor = dynamic_cast<lmdb::cursor*>(pos.get());
   }
   cursor->seek(value.first);
@@ -113,8 +111,7 @@ std::unique_ptr<datastore::cursor> lmdb::insert(
 
 std::unique_ptr<datastore::cursor> lmdb::lookup(datastore::key_type key) const {
   try {
-    auto txn = std::make_shared<transaction>(db_.environment());
-    auto result = std::make_unique<cursor>(db_, std::move(txn));
+    auto result = std::make_unique<cursor>(db_);
     result->seek(key);
     return result;
   } catch (std::out_of_range&) {
@@ -133,9 +130,10 @@ std::unique_ptr<datastore::cursor> lmdb::erase(
     pos = last();
   }
   {
-    auto cur = cursor(db_, std::make_shared<transaction>(env_, false));
+    lmdb::cursor cur{db_, std::make_shared<transaction>(env_, false)};
     cur.seek(key);
     cur.erase();
+    cur.transaction()->commit();
   }
   return pos;
 }
@@ -177,8 +175,6 @@ bool lmdb::environment::operator==(const lmdb::environment& rhs) {
 
 /** lmdb::transaction *********************************************/
 
-lmdb::transaction::transaction() : txn_(nullptr) {}
-
 lmdb::transaction::transaction(const lmdb::environment& env, bool readonly)
     : txn_(nullptr), readonly_(readonly) {
   transaction parent;
@@ -196,12 +192,14 @@ lmdb::transaction::~transaction() {
 void lmdb::transaction::abort() {
   mdb_txn_abort(txn_);
   txn_ = nullptr;
+  aborted_ = true;
 }
 
 void lmdb::transaction::commit() {
   if (txn_) {
     call(mdb_txn_commit(txn_));
     txn_ = nullptr;
+    committed_ = true;
   }
 }
 
@@ -246,14 +244,15 @@ lmdb::buffer::operator std::string_view() const {
 
 /** lmdb::cursor **************************************************/
 
-lmdb::cursor::cursor() : cursor_(nullptr) {}
-
 lmdb::cursor::cursor(lmdb::database db, std::shared_ptr<lmdb::transaction> txn)
     : database_(db), transaction_(std::move(txn)), cursor_(nullptr) {
   if (transaction_) {
     call(mdb_cursor_open(*transaction_, db, &cursor_));
   }
 }
+
+lmdb::cursor::cursor(lmdb::database db)
+    : cursor(db, std::make_shared<lmdb::transaction>(db.environment())) {}
 
 lmdb::cursor::cursor(lmdb::cursor&& rhs) noexcept
     : database_(rhs.database_),
@@ -264,6 +263,7 @@ lmdb::cursor::cursor(lmdb::cursor&& rhs) noexcept
 }
 
 lmdb::cursor& lmdb::cursor::operator=(lmdb::cursor&& rhs) noexcept {
+  close();
   database_ = rhs.database_;
   transaction_ = std::move(rhs.transaction_);
   cursor_ = rhs.cursor_;
@@ -340,12 +340,11 @@ void lmdb::cursor::first() {
 }
 
 void lmdb::cursor::close() {
-  if (cursor_) {
+  if (cursor_ && transaction_) {
     if (transaction_->readonly()) {
+      // lmdb automatically closes cursors on write transactions
       mdb_cursor_close(cursor_);
       cursor_ = nullptr;
-    } else {
-      transaction_->commit();
     }
   }
 }
@@ -359,6 +358,10 @@ const std::shared_ptr<lmdb::transaction>& lmdb::cursor::transaction() const {
 bool lmdb::cursor::operator==(const lmdb::cursor& rhs) const {
   return database_ == rhs.database_ && transaction_ == rhs.transaction_ &&
          cursor_ == rhs.cursor_;
+}
+
+bool lmdb::cursor::operator!=(const lmdb::cursor& rhs) const {
+  return !(*this == rhs);
 }
 
 const lmdb::cursor& lmdb::cursor::default_instance() {

@@ -67,7 +67,7 @@ datastore::size_type datastore::erase(datastore::key_type key) {
   auto result = 0;
   auto it = find(key);
   if (it != end()) {
-    erase(it);
+    it = erase(std::move(it));
     result = 1;
   }
   return result;

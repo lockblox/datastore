@@ -1,6 +1,7 @@
 #pragma once
 #include <blox/datastores/lmdb.h>
 #include <lmdb.h>
+#include <set>
 
 namespace blox::datastores::impl {
 
@@ -57,7 +58,7 @@ class lmdb final : public datastore {
    */
   class transaction {
    public:
-    transaction();
+    transaction() = default;
     explicit transaction(const environment& env, bool readonly = true);
     ~transaction();
     transaction(transaction&&) = delete;
@@ -73,8 +74,10 @@ class lmdb final : public datastore {
     operator MDB_txn*();
 
    private:
-    MDB_txn* txn_;
-    bool readonly_;
+    MDB_txn* txn_ = nullptr;
+    bool readonly_ = true;
+    bool committed_ = false;
+    bool aborted_ = false;
   };
 
   /** Encapsulates an LMDB database.
@@ -112,7 +115,7 @@ class lmdb final : public datastore {
     using mapped_type = datastore::mapped_type;
 
     /** Creates a sentinel cursor */
-    cursor();
+    cursor() = default;
 
     /** Destroys a cursor */
     ~cursor() override;
@@ -124,6 +127,9 @@ class lmdb final : public datastore {
 
     /** Creates a cursor */
     explicit cursor(database db, std::shared_ptr<transaction> txn);
+
+    /** Creates a cursor */
+    explicit cursor(database db);
 
     /** Seeks to the given key */
     void seek(const key_type& key);
@@ -167,14 +173,18 @@ class lmdb final : public datastore {
     /** Compares with another lmdb cursor */
     bool operator==(const cursor& rhs) const;
 
+    /** Compares with another lmdb cursor */
+    bool operator!=(const cursor& rhs) const;
+
     /** Returns a default constructed cursor */
     static const cursor& default_instance();
 
    private:
+    void reset();
     buffer key_, value_;
     database database_;
-    std::shared_ptr<lmdb::transaction> transaction_;
-    MDB_cursor* cursor_;
+    std::shared_ptr<lmdb::transaction> transaction_ = nullptr;
+    MDB_cursor* cursor_ = nullptr;
   };
 
   environment env_;
