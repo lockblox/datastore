@@ -95,17 +95,20 @@ std::unique_ptr<datastore::cursor> lmdb::last() const {
 std::unique_ptr<datastore::cursor> lmdb::insert(
     std::unique_ptr<datastore::cursor> pos,
     const datastore::value_type& value) {
-  (void)(pos);
   auto txn = std::make_shared<transaction>(env_, false);
   {
     auto cursor = lmdb::cursor{db_, txn};
     cursor.put(value);
     txn->commit();
   }
-  txn = std::make_shared<transaction>(env_);
-  auto result = std::make_unique<lmdb::cursor>(db_, txn);
-  result->seek(value.first);
-  return result;
+  auto cursor = dynamic_cast<lmdb::cursor*>(pos.get());
+  if (!cursor || *cursor == lmdb::cursor::default_instance()) {
+    txn = std::make_shared<transaction>(env_);
+    pos = std::make_unique<lmdb::cursor>(db_, std::move(txn));
+    cursor = dynamic_cast<lmdb::cursor*>(pos.get());
+  }
+  cursor->seek(value.first);
+  return pos;
 }
 
 std::unique_ptr<datastore::cursor> lmdb::lookup(datastore::key_type key) const {
@@ -122,7 +125,7 @@ std::unique_ptr<datastore::cursor> lmdb::lookup(datastore::key_type key) const {
 }
 
 std::unique_ptr<datastore::cursor> lmdb::erase(
-    std::unique_ptr<datastore::cursor>& pos) {
+    std::unique_ptr<datastore::cursor> pos) {
   auto key = pos->key();
   try {
     pos->increment();
@@ -130,14 +133,11 @@ std::unique_ptr<datastore::cursor> lmdb::erase(
     pos = last();
   }
   {
-    auto txn = std::make_shared<transaction>(env_, false);
-    auto cur = cursor(db_, txn);
+    auto cur = cursor(db_, std::make_shared<transaction>(env_, false));
     cur.seek(key);
     cur.erase();
-    cur.close();
-    txn->commit();
   }
-  return std::move(pos);
+  return pos;
 }
 
 datastore::size_type lmdb::capacity() const {
@@ -199,8 +199,10 @@ void lmdb::transaction::abort() {
 }
 
 void lmdb::transaction::commit() {
-  call(mdb_txn_commit(txn_));
-  txn_ = nullptr;
+  if (txn_) {
+    call(mdb_txn_commit(txn_));
+    txn_ = nullptr;
+  }
 }
 
 lmdb::transaction::operator MDB_txn*() { return txn_; }
@@ -339,11 +341,29 @@ void lmdb::cursor::first() {
 
 void lmdb::cursor::close() {
   if (cursor_) {
-    mdb_cursor_close(cursor_);
-    cursor_ = nullptr;
+    if (transaction_->readonly()) {
+      mdb_cursor_close(cursor_);
+      cursor_ = nullptr;
+    } else {
+      transaction_->commit();
+    }
   }
 }
 
 lmdb::cursor::~cursor() { close(); }
+
+const std::shared_ptr<lmdb::transaction>& lmdb::cursor::transaction() const {
+  return transaction_;
+}
+
+bool lmdb::cursor::operator==(const lmdb::cursor& rhs) const {
+  return database_ == rhs.database_ && transaction_ == rhs.transaction_ &&
+         cursor_ == rhs.cursor_;
+}
+
+const lmdb::cursor& lmdb::cursor::default_instance() {
+  static lmdb::cursor result;
+  return result;
+}
 
 }  // namespace blox::datastores::impl

@@ -9,7 +9,7 @@ class map final : public datastore {
  public:
   using iterator = iterator;
   std::unique_ptr<datastore::cursor> erase(
-      std::unique_ptr<datastore::cursor>& pos) override;
+      std::unique_ptr<datastore::cursor> pos) override;
   [[nodiscard]] std::unique_ptr<datastore::cursor> lookup(
       key_type key) const override;
   [[nodiscard]] std::unique_ptr<datastore::cursor> first() const override;

@@ -3,13 +3,13 @@
 namespace blox::datastores::impl {
 
 std::unique_ptr<datastore::cursor> map::erase(
-    std::unique_ptr<datastore::cursor>& pos) {
+    std::unique_ptr<datastore::cursor> pos) {
   auto cursor = dynamic_cast<const map::cursor*>(pos.get());
   if (cursor) {
     auto it = data_.erase(cursor->it_);
     pos = std::make_unique<map::cursor>(it);
   }
-  return std::move(pos);
+  return pos;
 }
 
 std::unique_ptr<datastore::cursor> map::lookup(key_type key) const {

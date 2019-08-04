@@ -17,7 +17,7 @@ class lmdb final : public datastore {
   std::unique_ptr<datastore::cursor> insert(
       std::unique_ptr<datastore::cursor> pos, const value_type& value) override;
   [[nodiscard]] std::unique_ptr<cursor> lookup(key_type key) const override;
-  std::unique_ptr<cursor> erase(std::unique_ptr<cursor>& pos) override;
+  std::unique_ptr<cursor> erase(std::unique_ptr<cursor> pos) override;
   [[nodiscard]] size_type capacity() const override;
 
  private:
@@ -149,14 +149,26 @@ class lmdb final : public datastore {
     /** Compares with another cursor */
     [[nodiscard]] bool equal(const datastore::cursor& rhs) const override;
 
+    /** Moves the cursor forward by one position */
     void increment() override;
+
+    /** Moves the cursor backwards by one position */
     void decrement() override;
 
+    /** Creates a copy of the cursor */
     [[nodiscard]] std::unique_ptr<datastore::cursor> clone() const override;
 
-    [[nodiscard]] const lmdb::transaction& transaction() const;
+    /** Returns the transaction for this cursor */
+    [[nodiscard]] const std::shared_ptr<lmdb::transaction>& transaction() const;
 
+    /** Closes the cursor */
     void close();
+
+    /** Compares with another lmdb cursor */
+    bool operator==(const cursor& rhs) const;
+
+    /** Returns a default constructed cursor */
+    static const cursor& default_instance();
 
    private:
     buffer key_, value_;

@@ -80,8 +80,8 @@ datastore::iterator datastore::insert(datastore::iterator pos,
   return iterator(insert(std::move(pos.cursor_), value));
 }
 
-datastore::iterator datastore::erase(datastore::iterator& pos) {
-  return iterator(erase(pos.cursor_));
+datastore::iterator datastore::erase(datastore::iterator pos) {
+  return iterator(erase(std::move(pos.cursor_)));
 }
 
 datastore::iterator datastore::find(datastore::key_type key) const {
