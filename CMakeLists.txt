@@ -25,7 +25,13 @@ add_library(libblox
         blox/datastores/impl/lmdb.cpp
         blox/datastores/impl/lmdb.h
         blox/datastores/impl/map.cpp
-        blox/datastores/impl/map.h)
+        blox/datastores/impl/map.h
+        blox/bijective/function.cpp
+        blox/bijective/function.h
+        blox/bijective/map.cpp
+        blox/bijective/map.h
+        blox/bijective/pair.cpp
+        blox/bijective/pair.h)
 
 set_target_properties(libblox PROPERTIES OUTPUT_NAME blox)
 target_include_directories(libblox PUBLIC
