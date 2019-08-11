@@ -22,6 +22,10 @@ add_library(libblox
         blox/block.h
         blox/blockstore.cpp
         blox/blockstore.h
+        blox/map.cpp
+        blox/map.h
+        blox/stream_codec.cpp
+        blox/stream_codec.h
         blox/datastores/impl/lmdb.cpp
         blox/datastores/impl/lmdb.h
         blox/datastores/impl/map.cpp
@@ -56,7 +60,8 @@ if(BUILD_TESTING)
             test/datastore_test.cpp
             test/main.cpp
             test/block_test.cpp
-            test/blockstore_test.cpp)
+            test/blockstore_test.cpp
+            test/map_test.cpp)
     target_link_libraries(blox_test PRIVATE libblox GTest::GTest GTest::Main)
     gtest_discover_tests(blox_test)
     if (MSVC) 
