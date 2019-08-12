@@ -179,7 +179,7 @@ template <typename Key, typename T, typename AssociativeContainer>
 typename map<Key, T, AssociativeContainer>::iterator
 map<Key, T, AssociativeContainer>::insert(map::iterator pos,
                                           const map::value_type& value) {
-  return iterator(container_->insert(value_transform_.f(value)),
+  return iterator(container_->insert(pos.base(), value_transform_.f(value)),
                   value_transform_.g());
 }
 
