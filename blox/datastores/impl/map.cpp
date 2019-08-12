@@ -24,12 +24,12 @@ std::unique_ptr<datastore::cursor> map::last() const {
   return std::make_unique<cursor>(data_.end());
 }
 
-std::unique_ptr<datastore::cursor> map::insert(
+std::unique_ptr<datastore::cursor> map::insert_or_assign(
     std::unique_ptr<datastore::cursor> pos, const value_type& value) {
   auto cursor = dynamic_cast<const map::cursor*>(pos.get());
   if (cursor) {
-    auto pair = std::pair(std::string(value.first), std::string(value.second));
-    pos = std::make_unique<map::cursor>(data_.insert(cursor->it_, pair));
+    pos = std::make_unique<map::cursor>(data_.insert_or_assign(
+        cursor->it_, std::string(value.first), std::string(value.second)));
   }
   return pos;
 }

@@ -79,8 +79,8 @@ class datastore {
   [[nodiscard]] iterator find(key_type key) const;
 
  protected:
-  virtual std::unique_ptr<cursor> insert(std::unique_ptr<cursor> pos,
-                                         const value_type& value) = 0;
+  virtual std::unique_ptr<cursor> insert_or_assign(std::unique_ptr<cursor> pos,
+                                                   const value_type& value) = 0;
   virtual std::unique_ptr<cursor> erase(std::unique_ptr<cursor> pos) = 0;
   [[nodiscard]] virtual std::unique_ptr<cursor> lookup(key_type key) const = 0;
   [[nodiscard]] virtual std::unique_ptr<cursor> first() const = 0;

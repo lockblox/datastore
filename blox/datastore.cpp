@@ -77,7 +77,11 @@ datastore::size_type datastore::max_size() const { return capacity(); }
 
 datastore::iterator datastore::insert(datastore::iterator pos,
                                       const datastore::value_type& value) {
-  return iterator(insert(std::move(pos.cursor_), value));
+  auto it = find(value.first);
+  if (it == end()) {
+    it = iterator(insert_or_assign(std::move(pos.cursor_), value));
+  }
+  return it;
 }
 
 datastore::iterator datastore::erase(datastore::iterator pos) {

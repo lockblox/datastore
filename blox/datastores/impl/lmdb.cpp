@@ -92,7 +92,7 @@ std::unique_ptr<datastore::cursor> lmdb::last() const {
   return std::make_unique<lmdb::cursor>();
 }
 
-std::unique_ptr<datastore::cursor> lmdb::insert(
+std::unique_ptr<datastore::cursor> lmdb::insert_or_assign(
     std::unique_ptr<datastore::cursor> pos,
     const datastore::value_type& value) {
   {

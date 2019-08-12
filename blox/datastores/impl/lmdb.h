@@ -15,7 +15,7 @@ class lmdb final : public datastore {
  protected:
   [[nodiscard]] std::unique_ptr<cursor> first() const override;
   [[nodiscard]] std::unique_ptr<cursor> last() const override;
-  std::unique_ptr<datastore::cursor> insert(
+  std::unique_ptr<datastore::cursor> insert_or_assign(
       std::unique_ptr<datastore::cursor> pos, const value_type& value) override;
   [[nodiscard]] std::unique_ptr<cursor> lookup(key_type key) const override;
   std::unique_ptr<cursor> erase(std::unique_ptr<cursor> pos) override;
