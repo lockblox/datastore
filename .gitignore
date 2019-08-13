@@ -33,7 +33,7 @@
 
 # IDE files
 build
-cmake-build-debug
+cmake-*
 .idea
 .vscode/ipch
 .vs
