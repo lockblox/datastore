@@ -18,6 +18,8 @@ class block {
   /** Creates a block from a copy */
   block(const block& other);
 
+  block(std::pair<const std::string_view, std::string_view>);
+
   /** Assigns the block to a reference */
   block& operator=(const block& rhs);
 
@@ -39,6 +41,9 @@ class block {
 
   /** Returns the block data */
   [[nodiscard]] mapped_type data() const;
+
+  /** Converts the block into a pair of string views */
+  operator std::pair<const std::string_view, std::string_view>() const;
 
  private:
   std::unique_ptr<char[]> buffer_;

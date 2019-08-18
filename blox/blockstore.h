@@ -8,6 +8,8 @@
 namespace blox {
 class blockstore {
  public:
+  // TODO blockstore is a set where a bijective function is provided for T,
+  //  by deafault a bijective::stream
   using transform = std::function<block(datastore::const_reference)>;
   using key_type = block;
   using value_type = block;

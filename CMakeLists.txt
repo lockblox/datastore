@@ -24,8 +24,8 @@ add_library(libblox
         blox/blockstore.h
         blox/map.cpp
         blox/map.h
-        blox/stream_codec.cpp
-        blox/stream_codec.h
+        blox/bijective/stream.cpp
+        blox/bijective/stream.h
         blox/datastores/impl/lmdb.cpp
         blox/datastores/impl/lmdb.h
         blox/datastores/impl/map.cpp
@@ -35,7 +35,9 @@ add_library(libblox
         blox/bijective/map.cpp
         blox/bijective/map.h
         blox/bijective/pair.cpp
-        blox/bijective/pair.h)
+        blox/bijective/pair.h
+        blox/set.cpp
+        blox/set.h)
 
 set_target_properties(libblox PROPERTIES OUTPUT_NAME blox)
 target_include_directories(libblox PUBLIC

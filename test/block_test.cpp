@@ -34,4 +34,15 @@ TEST(block, set) {
   EXPECT_EQ(4u, block_set.size());
 }
 
+TEST(block, store) {
+  auto map = std::map<std::string_view, std::string_view>{};
+  auto block = blox::block("some data");
+  auto inserted = map.insert(block);
+  EXPECT_TRUE(inserted.second);
+  EXPECT_NE(map.end(), inserted.first);
+  auto it = map.find(block.key());
+  EXPECT_NE(map.end(), it);
+  EXPECT_EQ(block, *it);
+}
+
 }  // namespace test

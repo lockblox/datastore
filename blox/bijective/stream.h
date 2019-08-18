@@ -6,15 +6,17 @@
 
 namespace blox {
 
+namespace bijective {
+
 template <typename T>
-class stream_codec : public bijective::function<T, std::string_view> {
+class stream : public bijective::function<T, std::string_view> {
  public:
   using base_type = bijective::function<T, std::string_view>;
-  stream_codec();
+  stream();
 };
 
 template <typename T>
-stream_codec<T>::stream_codec()
+stream<T>::stream()
     : base_type(
           [](const T& input) {
             static std::string buffer;
@@ -32,4 +34,5 @@ stream_codec<T>::stream_codec()
             return output;
           }) {}
 
+}  // namespace bijective
 }  // namespace blox
