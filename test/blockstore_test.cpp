@@ -1,3 +1,4 @@
+#include <blox/block.h>
 #include <blox/datastores/map.h>
 #include <gtest/gtest.h>
 
