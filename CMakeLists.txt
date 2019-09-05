@@ -20,8 +20,6 @@ add_library(libblox
         blox/datastores/lmdb.h
         blox/block.cpp
         blox/block.h
-        blox/blockstore.cpp
-        blox/blockstore.h
         blox/map.cpp
         blox/map.h
         blox/bijective/stream.cpp
@@ -36,8 +34,7 @@ add_library(libblox
         blox/bijective/map.h
         blox/bijective/pair.cpp
         blox/bijective/pair.h
-        blox/set.cpp
-        blox/set.h)
+        )
 
 set_target_properties(libblox PROPERTIES OUTPUT_NAME blox)
 target_include_directories(libblox PUBLIC
@@ -86,7 +83,6 @@ install(TARGETS libblox
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
 install(FILES
-        blox/blockstore.h
         blox/datastore.h
         blox/block.h
         DESTINATION include/blox)

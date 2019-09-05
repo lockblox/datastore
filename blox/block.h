@@ -18,6 +18,10 @@ class block {
   /** Creates a block from a copy */
   block(const block& other);
 
+  /** Creates a block from a pair of string views */
+  block(std::pair<std::string_view, std::string_view>);
+
+  /** Creates a block from a pair of string views */
   block(std::pair<const std::string_view, std::string_view>);
 
   /** Assigns the block to a reference */
@@ -41,6 +45,9 @@ class block {
 
   /** Returns the block data */
   [[nodiscard]] mapped_type data() const;
+
+  /** Converts the block into a pair of string views */
+  operator std::pair<std::string_view, std::string_view>() const;
 
   /** Converts the block into a pair of string views */
   operator std::pair<const std::string_view, std::string_view>() const;

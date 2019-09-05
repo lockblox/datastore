@@ -45,11 +45,18 @@ block::block(block::key_type key, block::mapped_type data)
 block::block(std::pair<const std::string_view, std::string_view> value)
     : key_(value.first), data_(value.second) {}
 
+block::block(std::pair<std::string_view, std::string_view> value)
+    : key_(value.first), data_(value.second) {}
+
 blox::block::key_type blox::block::key() const { return key_; }
 
 block::mapped_type block::data() const { return data_; }
 
 bool block::empty() const { return data_.empty(); }
+
+block::operator std::pair<std::string_view, std::string_view>() const {
+  return std::pair(static_cast<std::string_view>(key_), data_);
+}
 
 block::operator std::pair<const std::string_view, std::string_view>() const {
   return std::pair(static_cast<std::string_view>(key_), data_);
