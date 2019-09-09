@@ -1,11 +1,11 @@
 #pragma once
-#include <blox/datastores/lmdb.h>
+#include <datastore/clients/lmdb.h>
 #include <lmdb.h>
 #include <set>
 
-namespace blox::datastores::impl {
+namespace datastore::clients::detail {
 
-class lmdb final : public datastore {
+class lmdb final : public client {
  public:
   explicit lmdb(const lmdb_configuration& config);
   ~lmdb() final = default;
@@ -15,8 +15,8 @@ class lmdb final : public datastore {
  protected:
   [[nodiscard]] std::unique_ptr<cursor> first() const override;
   [[nodiscard]] std::unique_ptr<cursor> last() const override;
-  std::unique_ptr<datastore::cursor> insert_or_assign(
-      std::unique_ptr<datastore::cursor> pos, const value_type& value) override;
+  std::unique_ptr<client::cursor> insert_or_assign(
+      std::unique_ptr<client::cursor> pos, const value_type& value) override;
   [[nodiscard]] std::unique_ptr<cursor> lookup(key_type key) const override;
   std::unique_ptr<cursor> erase(std::unique_ptr<cursor> pos) override;
   [[nodiscard]] size_type capacity() const override;
@@ -108,11 +108,11 @@ class lmdb final : public datastore {
     MDB_dbi dbi_;
   };
 
-  class cursor final : public datastore::cursor {
+  class cursor final : public client::cursor {
    public:
-    using value_type = datastore::value_type;
-    using key_type = datastore::key_type;
-    using mapped_type = datastore::mapped_type;
+    using value_type = client::value_type;
+    using key_type = client::key_type;
+    using mapped_type = client::mapped_type;
 
     /** Creates a sentinel cursor */
     cursor() = default;
@@ -153,7 +153,7 @@ class lmdb final : public datastore {
     [[nodiscard]] mapped_type value() const override;
 
     /** Compares with another cursor */
-    [[nodiscard]] bool equal(const datastore::cursor& rhs) const override;
+    [[nodiscard]] bool equal(const client::cursor& rhs) const override;
 
     /** Moves the cursor forward by one position */
     void increment() override;
@@ -162,7 +162,7 @@ class lmdb final : public datastore {
     void decrement() override;
 
     /** Creates a copy of the cursor */
-    [[nodiscard]] std::unique_ptr<datastore::cursor> clone() const override;
+    [[nodiscard]] std::unique_ptr<client::cursor> clone() const override;
 
     /** Returns the transaction for this cursor */
     [[nodiscard]] const std::shared_ptr<lmdb::transaction>& transaction() const;
@@ -191,4 +191,4 @@ class lmdb final : public datastore {
   database db_;
 };
 
-}  // namespace blox::datastores::impl
+}  // namespace datastore::clients::detail

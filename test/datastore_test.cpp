@@ -1,5 +1,5 @@
-#include <blox/datastores/lmdb.h>
-#include <blox/datastores/map.h>
+#include <datastore/clients/lmdb.h>
+#include <datastore/clients/map.h>
 #include <gtest/gtest.h>
 #include <sstream>
 
@@ -22,10 +22,10 @@ bool operator==(const std::pair<std::string_view, std::string_view>& lhs,
 
 namespace test {
 
-using lmdb_configuration = blox::datastores::lmdb_configuration;
+using lmdb_configuration = datastore::clients::lmdb_configuration;
 
 class datastore
-    : public testing::TestWithParam<std::shared_ptr<blox::datastore>> {};
+    : public testing::TestWithParam<std::shared_ptr<::datastore::client>> {};
 
 TEST_P(datastore, clear) {
   auto datastore = GetParam();
@@ -72,10 +72,10 @@ TEST_P(datastore, at) {
 }
 
 INSTANTIATE_TEST_CASE_P(
-    blox, datastore,
+    datastore, datastore,
     ::testing::Values(
-        blox::datastores::make_map().release(),
-        blox::datastores::make_lmdb(
+        ::datastore::clients::make_map().release(),
+        ::datastore::clients::make_lmdb(
             lmdb_configuration(std::filesystem::temp_directory_path()))
             .release()), );
 

@@ -1,4 +1,4 @@
-#include <blox/block.h>
+#include <datastore/block.h>
 #include <gtest/gtest.h>
 
 namespace test {

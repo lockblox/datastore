@@ -1,8 +1,8 @@
 #pragma once
 
-#include <blox/bijective/function.h>
+#include <datastore/bijective/function.h>
 
-namespace blox::bijective {
+namespace datastore::bijective {
 /** Applies a pair of bijective functions to a tuple
  *
  * @tparam X A pair of values in domain of X
@@ -28,4 +28,4 @@ pair<X, Y>::pair(
             return X{first.g(y.first), second.g(y.second)};
           }) {}
 
-}  // namespace blox::bijective
+}  // namespace datastore::bijective

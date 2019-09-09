@@ -6,9 +6,10 @@
 #include <string_view>
 #include <utility>
 
-namespace blox {
+namespace datastore {
 
-class datastore {
+/** Client driver for a key value database */
+class client {
  public:
   class cursor;
   class iterator;
@@ -22,7 +23,7 @@ class datastore {
       std::add_lvalue_reference<std::add_const<value_type>::type>::type;
   using size_type = std::size_t;
 
-  virtual ~datastore() = default;
+  virtual ~client() = default;
 
   // Element access
 
@@ -47,18 +48,18 @@ class datastore {
 
   // Capacity
 
-  /** Checks whether the datastore is empty */
+  /** Checks whether the db is empty */
   [[nodiscard]] virtual bool empty() const;
 
-  /** Returns the number of elements in the datastore */
+  /** Returns the number of elements in the db */
   [[nodiscard]] virtual size_type size() const;
 
-  /** Returns the maximum possible number of elements in the datastore */
+  /** Returns the maximum possible number of elements in the db */
   [[nodiscard]] size_type max_size() const;
 
   // Modifiers
 
-  /** Removes all elements from the datastore */
+  /** Removes all elements from the db */
   virtual void clear();
 
   /** Inserts an element at the given position */
@@ -89,7 +90,7 @@ class datastore {
 };
 
 /** Interface to iterate through values of a database */
-class datastore::cursor {
+class client::cursor {
  public:
   /** Destroy a cursor */
   virtual ~cursor() = default;
@@ -110,11 +111,10 @@ class datastore::cursor {
 
   /** Move the cursor backwards */
   virtual void decrement() = 0;
-};  // namespace blox
+};
 
-class datastore::iterator
-    : public boost::iterator_facade<datastore::iterator,
-                                    const datastore::value_type,
+class client::iterator
+    : public boost::iterator_facade<client::iterator, const client::value_type,
                                     boost::bidirectional_traversal_tag> {
  public:
   using const_reference = std::add_const<reference>::type;
@@ -155,7 +155,7 @@ class datastore::iterator
   /** Determine whether two iterators are unequal */
   bool operator!=(const iterator& rhs) const;
 
-  friend class datastore;
+  friend class client;
 
  protected:
   std::unique_ptr<cursor> cursor_ = nullptr; /** Pointer to underlying cursor */
@@ -163,4 +163,4 @@ class datastore::iterator
   mutable std::optional<value_type> value_;
 };
 
-}  // namespace blox
+}  // namespace datastore

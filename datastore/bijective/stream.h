@@ -1,12 +1,10 @@
 #pragma once
 
-#include <blox/bijective/function.h>
+#include <datastore/bijective/function.h>
 #include <sstream>
 #include <string>
 
-namespace blox {
-
-namespace bijective {
+namespace datastore::bijective {
 
 template <typename T>
 class stream : public bijective::function<T, std::string_view> {
@@ -34,5 +32,4 @@ stream<T>::stream()
             return output;
           }) {}
 
-}  // namespace bijective
-}  // namespace blox
+}  // namespace datastore::bijective

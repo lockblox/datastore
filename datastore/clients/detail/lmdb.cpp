@@ -69,7 +69,7 @@ void call(int status) {
 }
 }  // namespace
 
-namespace blox::datastores::impl {
+namespace datastore::clients::detail {
 
 /** lmdb **********************************************************/
 
@@ -77,7 +77,7 @@ lmdb::lmdb(const lmdb_configuration& config) : env_(config.path()), db_(env_) {
   // TODO check if the file exists, if not pass MDB_CREATE as a flag
 }
 
-std::unique_ptr<datastore::cursor> lmdb::first() const {
+std::unique_ptr<client::cursor> lmdb::first() const {
   auto txn = std::make_shared<transaction>(env_);
   auto result = std::make_unique<cursor>(db_, txn);
   try {
@@ -88,13 +88,12 @@ std::unique_ptr<datastore::cursor> lmdb::first() const {
   }
 }
 
-std::unique_ptr<datastore::cursor> lmdb::last() const {
+std::unique_ptr<client::cursor> lmdb::last() const {
   return std::make_unique<lmdb::cursor>();
 }
 
-std::unique_ptr<datastore::cursor> lmdb::insert_or_assign(
-    std::unique_ptr<datastore::cursor> pos,
-    const datastore::value_type& value) {
+std::unique_ptr<client::cursor> lmdb::insert_or_assign(
+    std::unique_ptr<client::cursor> pos, const client::value_type& value) {
   {
     auto cursor = lmdb::cursor{db_, std::make_shared<transaction>(env_, false)};
     cursor.put(value);
@@ -109,7 +108,7 @@ std::unique_ptr<datastore::cursor> lmdb::insert_or_assign(
   return pos;
 }
 
-std::unique_ptr<datastore::cursor> lmdb::lookup(datastore::key_type key) const {
+std::unique_ptr<client::cursor> lmdb::lookup(client::key_type key) const {
   try {
     auto result = std::make_unique<cursor>(db_);
     result->seek(key);
@@ -121,8 +120,8 @@ std::unique_ptr<datastore::cursor> lmdb::lookup(datastore::key_type key) const {
   }
 }
 
-std::unique_ptr<datastore::cursor> lmdb::erase(
-    std::unique_ptr<datastore::cursor> pos) {
+std::unique_ptr<client::cursor> lmdb::erase(
+    std::unique_ptr<client::cursor> pos) {
   auto key = pos->key();
   try {
     pos->increment();
@@ -138,13 +137,13 @@ std::unique_ptr<datastore::cursor> lmdb::erase(
   return pos;
 }
 
-datastore::size_type lmdb::capacity() const {
+client::size_type lmdb::capacity() const {
   MDB_envinfo envinfo;
   call(mdb_env_info(env_, &envinfo));
   return envinfo.me_mapsize;
 }
 
-datastore::size_type lmdb::size() const {
+client::size_type lmdb::size() const {
   MDB_stat stat;
   call(mdb_env_stat(env_, &stat));
   return stat.ms_entries;
@@ -296,7 +295,7 @@ std::string_view lmdb::cursor::key() const { return key_; }
 
 std::string_view lmdb::cursor::value() const { return value_; }
 
-bool lmdb::cursor::equal(const datastore::cursor& rhs) const {
+bool lmdb::cursor::equal(const client::cursor& rhs) const {
   try {
     const auto& cursor = dynamic_cast<const lmdb::cursor&>(rhs);
     return database_ == cursor.database_ &&
@@ -322,7 +321,7 @@ void lmdb::cursor::decrement() {
   }
 }
 
-std::unique_ptr<datastore::cursor> lmdb::cursor::clone() const {
+std::unique_ptr<client::cursor> lmdb::cursor::clone() const {
   auto result = std::make_unique<lmdb::cursor>(database_, transaction_);
   if (database_ && transaction_ && key() != buffer()) {
     result->seek(key());
@@ -369,4 +368,4 @@ const lmdb::cursor& lmdb::cursor::default_instance() {
   return result;
 }
 
-}  // namespace blox::datastores::impl
+}  // namespace datastore::clients::detail

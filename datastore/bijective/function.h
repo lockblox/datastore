@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
 
-namespace blox::bijective {
+namespace datastore::bijective {
 
 /** A bijective function f and its inverse g */
 template <typename X, typename Y>
@@ -55,4 +55,4 @@ constexpr function<X, Y>::function(function::f_type f,
                                    function::g_type g) noexcept
     : f_(std::move(f)), g_(std::move(g)) {}
 
-}  // namespace blox::bijective
+}  // namespace datastore::bijective

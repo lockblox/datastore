@@ -7,8 +7,6 @@ RUN cd ${VCPKG_ROOT} \
  && git pull lockblox master \
  && rm -rf downloads \
  && ./vcpkg install lmdb \
- && ./vcpkg install boost-iterator \
- && ./vcpkg install --head varint \
- && ./vcpkg install --head multihash
+ && ./vcpkg install boost-iterator
 
 COPY . /root/src

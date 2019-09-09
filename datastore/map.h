@@ -1,28 +1,29 @@
 #pragma once
 
-#include <blox/bijective/stream.h>
-#include <blox/datastore.h>
+#include <datastore/bijective/function.h>
+#include <datastore/bijective/map.h>
+#include <datastore/bijective/stream.h>
+#include <datastore/client.h>
 #include <functional>
-#include "blox/bijective/function.h"
-#include "blox/bijective/map.h"
 
-namespace blox {
+namespace datastore {
 
+/** map provides an std::map like interface atop a datastore */
 template <typename Key, typename T>
-class map : public bijective::map<Key, T, datastore> {
+class map : public datastore::bijective::map<Key, T, client> {
  public:
-  using base_type = bijective::map<Key, T, datastore>;
+  using base_type = bijective::map<Key, T, client>;
   using typename base_type::key_transform_type;
   using typename base_type::mapped_transform_type;
-  explicit map(blox::datastore& datastore,
+  explicit map(client& datastore,
                key_transform_type key_transform = bijective::stream<Key>{},
                mapped_transform_type mapped_transform = bijective::stream<T>{});
 };
 
 template <typename Key, typename T>
-map<Key, T>::map(blox::datastore& datastore,
+map<Key, T>::map(client& datastore,
                  typename map<Key, T>::key_transform_type key_transform,
                  typename map<Key, T>::mapped_transform_type mapped_transform)
     : base_type(datastore, key_transform, mapped_transform) {}
 
-}  // namespace blox
+}  // namespace datastore

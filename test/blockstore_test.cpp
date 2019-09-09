@@ -1,11 +1,10 @@
 #include <blox/block.h>
-#include <blox/datastores/map.h>
+#include <datastore/map.h>
 #include <gtest/gtest.h>
 
 namespace test {
 
-class blockstore
-    : public testing::TestWithParam<std::shared_ptr<blox::datastore>> {};
+class blockstore : public testing::TestWithParam<std::shared_ptr<datastore>> {};
 
 TEST_P(blockstore, clear) {
   auto blockstore = GetParam();
@@ -53,7 +52,6 @@ TEST_P(blockstore, iteration) {
 }
 
 INSTANTIATE_TEST_CASE_P(blox, blockstore,
-                        ::testing::Values(std::shared_ptr<blox::datastore>(
-                            blox::datastores::make_map())), );
+    ::testing::Values(std::shared_ptr<datastore>(datastore::make_map())), );
 
 }  // namespace test

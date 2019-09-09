@@ -1,10 +1,10 @@
 #pragma once
 
-#include <blox/bijective/function.h>
-#include <blox/bijective/pair.h>
+#include <datastore/bijective/function.h>
+#include <datastore/bijective/pair.h>
 #include <boost/iterator/transform_iterator.hpp>
 
-namespace blox::bijective {
+namespace datastore::bijective {
 /** Applies bijective functions to the key and mapped type of an
  * AssociativeContainer
  *
@@ -39,7 +39,7 @@ class map {
       boost::transform_iterator<typename value_transform_type::g_type,
                                 typename AssociativeContainer::iterator,
                                 value_type, value_type>;
-  using const_iterator = const iterator;
+  using const_iterator = typename std::add_const<iterator>::type;
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
@@ -52,13 +52,13 @@ class map {
   // Iterators
 
   /** Returns an iterator to the beginning */
-  [[nodiscard]] const_iterator begin() const;
+  [[nodiscard]] iterator begin() const;
 
   /** Returns an iterator to the beginning */
   [[nodiscard]] const_iterator cbegin() const;
 
   /** Returns an iterator to the end */
-  [[nodiscard]] const_iterator end() const;
+  [[nodiscard]] iterator end() const;
   /** Returns an iterator to the end */
   [[nodiscard]] const_iterator cend() const;
 
@@ -130,7 +130,7 @@ map<Key, T, AssociativeContainer>::map(
               key_transform, mapped_transform}) {}
 
 template <typename Key, typename T, typename AssociativeContainer>
-typename map<Key, T, AssociativeContainer>::const_iterator
+typename map<Key, T, AssociativeContainer>::iterator
 map<Key, T, AssociativeContainer>::begin() const {
   return iterator(container_->begin(), value_transform_.g());
 }
@@ -142,7 +142,7 @@ map<Key, T, AssociativeContainer>::cbegin() const {
 }
 
 template <typename Key, typename T, typename AssociativeContainer>
-typename map<Key, T, AssociativeContainer>::const_iterator
+typename map<Key, T, AssociativeContainer>::iterator
 map<Key, T, AssociativeContainer>::end() const {
   return iterator(container_->end(), value_transform_.g());
 }
@@ -211,4 +211,4 @@ map<Key, T, AssociativeContainer>::find(const key_type& key) const {
                   value_transform_.g());
 }
 
-}  // namespace blox::bijective
+}  // namespace datastore::bijective

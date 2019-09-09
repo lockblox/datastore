@@ -1,8 +1,8 @@
 #pragma once
-#include <blox/datastore.h>
+#include <datastore/client.h>
 #include <filesystem>
 
-namespace blox::datastores {
+namespace datastore::clients {
 
 class lmdb_configuration {
  public:
@@ -19,6 +19,6 @@ class lmdb_configuration {
 };
 
 /** Creates an lmdb datastore */
-std::unique_ptr<datastore> make_lmdb(const lmdb_configuration& configuration);
+std::unique_ptr<client> make_lmdb(const lmdb_configuration& configuration);
 
-}  // namespace blox::datastores
+}  // namespace datastore::clients
