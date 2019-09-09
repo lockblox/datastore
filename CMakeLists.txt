@@ -77,8 +77,14 @@ install(TARGETS libdatastore
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
 install(FILES
+        datastore/bijective/function.h
+        datastore/bijective/map.h
+        datastore/bijective/pair.h
+        datastore/bijective/stream.h
+        DESTINATION include/datastore/bijective)
+install(FILES
         datastore/client.h
-        datastore/block.h
+        datastore/map.h
         DESTINATION include/datastore)
 install(FILES
         datastore/clients/lmdb.h
