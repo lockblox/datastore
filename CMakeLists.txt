@@ -8,8 +8,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(lmdb CONFIG REQUIRED)
-find_package(multihash CONFIG REQUIRED)
-find_package(cryptopp CONFIG REQUIRED)
 
 add_library(libdatastore
         datastore/client.cpp
