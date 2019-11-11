@@ -31,8 +31,8 @@ TEST_P(datastore, clear) {
   auto datastore = GetParam();
   datastore->clear();
   EXPECT_TRUE(datastore->empty());
-  EXPECT_EQ(0, datastore->size());
-  EXPECT_LT(0, datastore->max_size());
+  EXPECT_EQ(0u, datastore->size());
+  EXPECT_LT(0u, datastore->max_size());
 }
 
 TEST_P(datastore, find) {
@@ -71,12 +71,12 @@ TEST_P(datastore, at) {
   EXPECT_THROW(datastore->at("non-existent key"), std::out_of_range);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     datastore, datastore,
     ::testing::Values(
         ::datastore::clients::make_map().release(),
         ::datastore::clients::make_lmdb(
             lmdb_configuration(std::filesystem::temp_directory_path()))
-            .release()), );
+            .release()));
 
 }  // namespace test
